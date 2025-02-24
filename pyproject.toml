@@ -1,0 +1,36 @@
+[project]
+name = "fflib"
+version = "0.1.0"
+description = "PyTorch-based library for the Forward-Forward algorithm"
+authors = [
+    {name = "Mitko Nikov",email = "mitkonikov01@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch (>=2.6.0,<3.0.0)",
+    "torchvision (>=0.21.0,<0.22.0)"
+]
+dynamic = [ "classifiers" ]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+
+[project.urls]
+homepage = "https://github.com/mitkonikov/ff"
+repository = "https://github.com/mitkonikov/ff"
+documentation = "https://github.com/mitkonikov/ff"
+"Bug Tracker" = "https://github.com/mitkonikov/ff/issues"
+
+[tool.poetry]
+packages = [{ include = "fflib", from = "src" }]
+classifiers = [
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
