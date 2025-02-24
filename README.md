@@ -12,8 +12,6 @@ to the original design and structure of the PyTorch library.
 
 PyTorch and torchvision are the only main dependencies needed to run all of the examples for now.
 
-> We are working on establishing a `requirements.txt` file and a `conda` env.
-
 ### Examples
 
 To get started with our library check out the examples in the `./examples` folder.
@@ -54,12 +52,38 @@ with the changes downstream. We will however try to keep these at minimum.
 
 The main maintainer of this library is [Mitko Nikov](https://github.com/mitkonikov).
 
-## Guidelines
+### Developing the library
+
+We are using [poetry](https://python-poetry.org/) to manage, build and publish the python package.
+We recommend downloading poetry and running `poetry install` to install all of the packages.
+
+To activate the virtual env created by poetry, run `poetry env activate` to get the
+command to activate the env. After activation, you can run anything from within.
+
+### Contributing to GitHub
+
+There are three things that we are very strict about:
+ - Type-checking - powered by [mypy](https://mypy-lang.org/)
+ - Coding style - powered by [Black](https://black.readthedocs.io/en/stable/)
+ - Unit Tests - powered by [pytest](https://docs.pytest.org/en/stable/)
+
+Run the following commands in the virtual env
+to ensure that everything is according to the guidelines:
+
+```sh
+mypy .
+black .
+pytest .
+```
+
+ > We are working on fully automated GitHub workflows to recheck these guidelines.
+
+## General Guidelines
 
 Here are a few guidelines to following while contributing on the library:
  - We aim to keep this library with as little run-time-necessary dependencies as possible.
  - Unit tests for as many functions as possible. (we know that we can't cover everything)
  - Strict Static Type-checking using `mypy`
- - Strict formatting style guidelines (to be configured)
+ - Strict formatting style guidelines using `black`
  - No recursion (at our abstraction level)
  - Nicely documented functions and classes
