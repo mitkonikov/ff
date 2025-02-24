@@ -3,6 +3,7 @@ import torch
 
 from fflib.probes.one_hot import TryAllClasses
 
+
 # Mock callback function
 def mock_callback(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """Simulates a simple deterministic FF neural network goodness function.
@@ -11,7 +12,7 @@ def mock_callback(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         x (torch.Tensor):
             Input Features.
             Tensor with shape (batch_size, feature_dim)
-        y (torch.Tensor): 
+        y (torch.Tensor):
             One Hot Encoding of the output we want to test.
             Tensor with shape (batch_size, output_classes)
 
@@ -27,12 +28,16 @@ def mock_callback(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     assert result.shape == (x.shape[0], 1)
     return result
 
-@pytest.mark.parametrize("batch_size, output_classes", [
-    (5, 3),   # Small batch, 3 classes
-    (10, 4),  # Medium batch, 4 classes
-    (1, 2),   # Edge case: batch size of 1
-    (20, 5),  # Larger batch, 5 classes
-])
+
+@pytest.mark.parametrize(
+    "batch_size, output_classes",
+    [
+        (5, 3),  # Small batch, 3 classes
+        (10, 4),  # Medium batch, 4 classes
+        (1, 2),  # Edge case: batch size of 1
+        (20, 5),  # Larger batch, 5 classes
+    ],
+)
 def test_predict(batch_size: int, output_classes: int):
     torch.manual_seed(42)
 
@@ -41,13 +46,16 @@ def test_predict(batch_size: int, output_classes: int):
     x = torch.randn(batch_size, feature_dim)
 
     probe = TryAllClasses(callback=mock_callback, output_classes=output_classes)
-    
+
     # Get predictions
     predictions = probe.predict(x)
 
     # Assertions
     assert predictions.shape == (batch_size,), "Output should have shape (batch_size,)"
-    assert torch.all((predictions >= 0) & (predictions < output_classes)), "Predicted labels must be within range [0, output_classes-1]"
+    assert torch.all(
+        (predictions >= 0) & (predictions < output_classes)
+    ), "Predicted labels must be within range [0, output_classes-1]"
+
 
 def test_callback_is_called():
     """
@@ -64,9 +72,10 @@ def test_callback_is_called():
 
     probe = TryAllClasses(callback=tracking_callback, output_classes=3)
     x = torch.randn(5, 10)
-    
+
     _ = probe.predict(x)
     assert callback_called, "Callback function should be called during prediction"
+
 
 def test_output_consistency():
     """
@@ -74,7 +83,7 @@ def test_output_consistency():
     """
     torch.manual_seed(123)
     x = torch.randn(8, 10)
-    
+
     probe = TryAllClasses(callback=mock_callback, output_classes=4)
     pred1 = probe.predict(x)
 
@@ -84,16 +93,20 @@ def test_output_consistency():
 
     assert torch.equal(pred1, pred2), "Predictions should be consistent with the same input"
 
-@pytest.mark.parametrize("batch_size, output_classes", [
-    (1, 3),
-    (50, 4),
-])
+
+@pytest.mark.parametrize(
+    "batch_size, output_classes",
+    [
+        (1, 3),
+        (50, 4),
+    ],
+)
 def test_predict_correct_label(batch_size: int, output_classes: int):
     feature_dim = 10
     x = torch.randn(batch_size, feature_dim)
-    
+
     truth = torch.randint(0, output_classes, (batch_size, 1))
-    
+
     def mock_callback2(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         """
         Mock callback that returns a high score for the correct label (1.0) and 0.0 for others.
@@ -104,7 +117,9 @@ def test_predict_correct_label(batch_size: int, output_classes: int):
         # Compare the predicted label (y) with the truth (truth) and assign score 1 if they match
         # Assumes y contains the predicted labels as a tensor of shape (batch_size, 1)
         # We compare the predicted label with the truth, and assign 1.0 if they match, else 0.0
-        scores[:, 0] = (truth.squeeze(1) == y.argmax(1)).float()  # convert boolean to float (True -> 1.0, False -> 0.0)
+        scores[:, 0] = (
+            truth.squeeze(1) == y.argmax(1)
+        ).float()  # convert boolean to float (True -> 1.0, False -> 0.0)
         return scores
 
     probe = TryAllClasses(callback=mock_callback2, output_classes=output_classes)
@@ -114,7 +129,9 @@ def test_predict_correct_label(batch_size: int, output_classes: int):
     print("Predictions: ", predictions[:20,])
 
     # Ensure the predictions are within the valid range of [0, output_classes-1]
-    assert torch.all((predictions >= 0) & (predictions < output_classes)), "Predicted labels must be within range [0, output_classes-1]"
-    
+    assert torch.all(
+        (predictions >= 0) & (predictions < output_classes)
+    ), "Predicted labels must be within range [0, output_classes-1]"
+
     # Check that the predicted label is the correct one
     assert torch.equal(predictions, truth.squeeze(1)), "Predictions should match the correct labels"

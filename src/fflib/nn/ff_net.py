@@ -5,6 +5,7 @@ from fflib.interfaces.iff import IFF
 from fflib.nn.ff_linear import FFLinear
 from typing import List
 
+
 class FFNet(IFF, Module):
     def __init__(self, layers: List[FFLinear], device):
         super().__init__()
@@ -16,7 +17,7 @@ class FFNet(IFF, Module):
         return len(self.layers)
 
     def forward(self, x: torch.Tensor):
-        result: List[torch.Tensor] = [] # (layer, batch_size, goodness)
+        result: List[torch.Tensor] = []  # (layer, batch_size, goodness)
         for layer in self.layers:
             # Each layer's inference returns the goodness of the layer
             # and the output of the layer to be passed to the next
@@ -24,15 +25,15 @@ class FFNet(IFF, Module):
 
             if g is not None:
                 result.append(g)
-        
+
         combine_layers = sum(result)
         return combine_layers
-    
+
     def run_train(
-            self,
-            x_pos: torch.Tensor,
-            x_neg: torch.Tensor,
-        ):
+        self,
+        x_pos: torch.Tensor,
+        x_neg: torch.Tensor,
+    ):
 
         # For each layer in the neural network
         for _, layer in enumerate(self.layers):

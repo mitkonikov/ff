@@ -16,8 +16,8 @@ class FFLinear(Linear):
         maximize: bool = True,
         optimizer: Callable = Adam,
         bias: bool = True,
-        device = None,
-        dtype = None,
+        device=None,
+        dtype=None,
     ):
         """
         Initializes an FF Linear Dense layer.
@@ -75,17 +75,15 @@ class FFLinear(Linear):
         # Compute the linear transformation followed by the given activation
         # weight.T is 2D tensor (ex: shape (784, 500))
         # ex: (50000, 784) * (784 * 500) => (50000 * 500) + (1 * 500)
-        return self.activation_fn(
-            torch.mm(x_direction, self.weight.T) + self.bias.unsqueeze(0)
-        )
+        return self.activation_fn(torch.mm(x_direction, self.weight.T) + self.bias.unsqueeze(0))
 
     def goodness(
         self,
         x: torch.Tensor,
-        logistic_fn: Callable = lambda x : torch.log(1 + torch.exp(x)),
-        inverse: bool = False
+        logistic_fn: Callable = lambda x: torch.log(1 + torch.exp(x)),
+        inverse: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        
+
         x = x.detach()
         y = self.forward(x)
         z = y.pow(2).mean(1) - self.loss_threshold

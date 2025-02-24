@@ -13,21 +13,17 @@ from fflib.utils.ff_logger import logger
 from typing import Callable, Any, Tuple
 from typing_extensions import Self
 
+
 class FFSuite:
-    def __init__(
-            self,
-            ff_net: IFF,
-            probe: IFFProbe,
-            device = None
-        ):
-        
+    def __init__(self, ff_net: IFF, probe: IFFProbe, device=None):
+
         self.net = ff_net
         self.probe = probe
 
         self.device = device
         if device is not None:
             self.net.to(device)
-        
+
         # Default member variables
         self.pre_epoch_callback: Callable | None = None
         self.current_epoch: int = 0
@@ -38,7 +34,7 @@ class FFSuite:
     def set_pre_epoch_callback(self, callback: Callable[[Self, int], Any]):
         """This function allows you to hook a callback
         to be called before the training of each epoch.
-        
+
         Example where this is useful is a custom LR scheduler:
         ```
         def callback(suite: FF_TestSuite, e: int):
@@ -51,7 +47,7 @@ class FFSuite:
         ```
 
         Args:
-            callback (Callable[[FF_TestSuite, int], Any]): 
+            callback (Callable[[FF_TestSuite, int], Any]):
                 Callback function accepting two parameters -
                 The FFTestSuite object and the current epoch.
         """
@@ -87,11 +83,7 @@ class FFSuite:
                 }
             )
 
-    def train(
-        self,
-        dataloader: FFDataProcessor,
-        epochs: int
-    ):
+    def train(self, dataloader: FFDataProcessor, epochs: int):
         logger.info("Starting Training...")
         start_time = time.time()
 
@@ -151,7 +143,7 @@ class FFSuite:
         print(f"Test Accuracy: {test_accuracy:.4f}")
         self.test_data = {"test_accuracy": test_accuracy}
         return self.test_data
-    
+
     @staticmethod
     def append_to_filename(path, suffix):
         dir_name, base_name = os.path.split(path)
@@ -167,7 +159,7 @@ class FFSuite:
             "test_data": self.test_data,
             "time_to_train": self.time_to_train,
             "date": str(datetime.datetime.now()),
-            "net": self.net
+            "net": self.net,
         }
 
         if append_hash:

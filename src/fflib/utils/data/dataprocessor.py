@@ -7,6 +7,7 @@ from fflib.interfaces.iff import IFF
 
 from typing import Tuple, Dict, Any
 
+
 class FFDataProcessor(ABC):
     @staticmethod
     def check_splits(splits: Tuple[float, float, float] | Tuple[float, float]):
@@ -30,7 +31,7 @@ class FFDataProcessor(ABC):
     def get_all_loaders(self) -> Dict[str, DataLoader] | Dict[str, Any]:
         """This function should return a dictionary containing 2 or 3 dataloader
         in the following form:
-        
+
         ```
         {
             "train": train_loader,

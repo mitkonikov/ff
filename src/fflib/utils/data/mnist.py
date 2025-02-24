@@ -2,8 +2,8 @@ import torch
 
 from torch.nn.functional import one_hot
 from torch.utils.data import DataLoader, random_split
-from torchvision.datasets import MNIST # type: ignore
-from torchvision.transforms import Compose, ToTensor, Lambda # type: ignore
+from torchvision.datasets import MNIST  # type: ignore
+from torchvision.transforms import Compose, ToTensor, Lambda  # type: ignore
 
 from fflib.utils.data import FFDataProcessor
 from fflib.interfaces.iff import IFF
@@ -11,26 +11,28 @@ from fflib.interfaces.iff import IFF
 from enum import Enum
 from typing import Dict
 
+
 class NegativeGenerator(Enum):
     INVERSE = 1
     RANDOM = 2
     HIGHEST_INCORRECT = 3
 
+
 class FFMNIST(FFDataProcessor):
     def __init__(
-            self,
-            batch_size: int,
-            validation_split: float | None,
-            download: bool = True,
-            path: str = './data',
-            image_transform = Compose([ToTensor(), Lambda(torch.flatten)]),
-            train_kwargs: Dict = {},
-            test_kwargs: Dict = {},
-            negative_generator: NegativeGenerator = NegativeGenerator.INVERSE
-        ):
+        self,
+        batch_size: int,
+        validation_split: float | None,
+        download: bool = True,
+        path: str = "./data",
+        image_transform=Compose([ToTensor(), Lambda(torch.flatten)]),
+        train_kwargs: Dict = {},
+        test_kwargs: Dict = {},
+        negative_generator: NegativeGenerator = NegativeGenerator.INVERSE,
+    ):
 
-        assert(isinstance(batch_size, int))
-        assert(batch_size > 0)
+        assert isinstance(batch_size, int)
+        assert batch_size > 0
         self.batch_size = batch_size
         if "batch_size" not in train_kwargs:
             train_kwargs["batch_size"] = self.batch_size
@@ -38,7 +40,7 @@ class FFMNIST(FFDataProcessor):
             test_kwargs["batch_size"] = self.batch_size
 
         train_kwargs["shuffle"] = True
-        
+
         self.validation_split = validation_split
         self.download = download
         self.path = path
@@ -47,10 +49,14 @@ class FFMNIST(FFDataProcessor):
         self.test_kwargs = test_kwargs
         self.negative_generator = negative_generator
 
-        self.train_dataset = MNIST(self.path, train=True, download=self.download, transform=self.image_transform)
-        self.test_dataset = MNIST(self.path, train=False, download=self.download, transform=self.image_transform)
+        self.train_dataset = MNIST(
+            self.path, train=True, download=self.download, transform=self.image_transform
+        )
+        self.test_dataset = MNIST(
+            self.path, train=False, download=self.download, transform=self.image_transform
+        )
         self.test_loader = DataLoader(self.test_dataset, **self.test_kwargs)
-        
+
         # In case a validation split is given
         if self.validation_split:
             # Determine the sizes of training and validation sets
@@ -60,7 +66,7 @@ class FFMNIST(FFDataProcessor):
 
             # Split dataset into train and validation sets
             train_dataset, val_dataset = random_split(self.train_dataset, [train_size, val_size])
-            
+
             # Create data loaders for train and validation
             self.train_loader = DataLoader(train_dataset, **self.train_kwargs)
             self.val_loader = DataLoader(val_dataset, **self.test_kwargs)
@@ -69,7 +75,7 @@ class FFMNIST(FFDataProcessor):
 
     def get_train_loader(self):
         return self.train_loader
-    
+
     def get_val_loader(self):
         return self.val_loader
 
@@ -80,19 +86,14 @@ class FFMNIST(FFDataProcessor):
         return {
             "train": self.get_train_loader(),
             "val": self.get_val_loader(),
-            "test": self.get_test_loader()
+            "test": self.get_test_loader(),
         }
-    
+
     def prepare_input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         y = one_hot(y, num_classes=10).float()
         return torch.cat((x, y), 1)
 
-    def generate_negative(
-            self,
-            x: torch.Tensor,
-            y: torch.Tensor,
-            net: IFF
-        ) -> torch.Tensor:
+    def generate_negative(self, x: torch.Tensor, y: torch.Tensor, net: IFF) -> torch.Tensor:
 
         if self.negative_generator == NegativeGenerator.HIGHEST_INCORRECT:
             raise NotImplementedError()
@@ -101,7 +102,7 @@ class FFMNIST(FFDataProcessor):
             y_hot = 1 - one_hot(y, num_classes=10).float()
             result = torch.cat((x, y_hot), 1)
             return result
-        
+
         rnd = torch.rand((x.shape[0], 10), device=x.device)
         rnd[torch.arange(x.shape[0]), y] = 0
         y_new = rnd.argmax(1)

@@ -4,8 +4,11 @@ from fflib.interfaces.iffprobe import IFFProbe
 
 from typing import List, Callable
 
+
 class TryAllClasses(IFFProbe):
-    def __init__(self, callback: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], output_classes: int):
+    def __init__(
+        self, callback: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], output_classes: int
+    ):
         self.callback = callback
         self.output_classes = output_classes
 
@@ -25,7 +28,7 @@ class TryAllClasses(IFFProbe):
             goodness_per_label.append(result)
 
         # goodness_per_layer is a Tensor of size(output_classes, batch_size, 1)
-        result = torch.cat(goodness_per_label, 1) # (batch_size, output_classes)
+        result = torch.cat(goodness_per_label, 1)  # (batch_size, output_classes)
         return result
 
     def predict(self, x: torch.Tensor) -> torch.Tensor:
@@ -40,5 +43,5 @@ class TryAllClasses(IFFProbe):
         """
 
         goodness = self.class_goodness(x)
-        best_label = torch.argmax(goodness, 1) # (batch_size, )
+        best_label = torch.argmax(goodness, 1)  # (batch_size, )
         return best_label

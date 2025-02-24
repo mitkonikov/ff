@@ -3,26 +3,18 @@ import torch
 
 from fflib.nn.ff_linear import FFLinear
 
+
 def test_setup_linear():
-    linear = FFLinear(
-        in_features=10,
-        out_features=2,
-        loss_threshold=20,
-        lr=0.02
-    )
+    linear = FFLinear(in_features=10, out_features=2, loss_threshold=20, lr=0.02)
 
     x = torch.randn((8, 10))
     y = linear.forward(x)
 
     assert y.shape == (8, 2)
 
+
 def test_linear_call():
-    linear = FFLinear(
-        in_features=10,
-        out_features=2,
-        loss_threshold=20,
-        lr=0.02
-    )
+    linear = FFLinear(in_features=10, out_features=2, loss_threshold=20, lr=0.02)
 
     x = torch.randn((8, 10))
     y1 = linear(x)
@@ -32,17 +24,13 @@ def test_linear_call():
     assert y2.requires_grad == y1.requires_grad
     assert y2.requires_grad
 
+
 def test_train_linear_basic():
     batch_size = 128
 
     torch.manual_seed(42)
-    
-    linear = FFLinear(
-        in_features=10,
-        out_features=2,
-        loss_threshold=1,
-        lr=0.02
-    )
+
+    linear = FFLinear(in_features=10, out_features=2, loss_threshold=1, lr=0.02)
 
     x_train_pos = torch.cat((torch.rand((batch_size, 5)), torch.zeros((batch_size, 5))), dim=1)
     x_train_neg = torch.cat((torch.zeros((batch_size, 5)), torch.rand((batch_size, 5))), dim=1)
