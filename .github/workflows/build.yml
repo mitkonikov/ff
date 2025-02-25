@@ -13,9 +13,21 @@ jobs:
           python-version: "3.10"
 
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v3
+        uses: abatilo/actions-poetry@v4
         with:
           poetry-version: "latest"
+      
+      - name: Setup a local virtual environment
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+
+      - uses: actions/cache@v3
+        name: Define a cache for poetry
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
 
       - name: Install the project dependencies
         run: |
