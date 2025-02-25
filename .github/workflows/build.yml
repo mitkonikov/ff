@@ -1,0 +1,59 @@
+name: Check and Build Package
+
+on: push
+
+jobs:
+  check-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: "latest"
+
+      - name: Install the project dependencies
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry install
+
+      - name: Activate Virtual Env
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry env activate
+
+      - name: Run MyPy
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry run mypy .
+
+      - name: Run the Formatter checks
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry run black . --check
+
+      - name: Run the Tests
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry run pytest . -v
+
+      - name: Check Package
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry check
+
+      - name: Build Package
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry build
+
+      - name: Upload the Package Build as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FFLib
+          path: ./dist

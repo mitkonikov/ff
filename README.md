@@ -1,4 +1,4 @@
-# PyTorch-based library for the Forward-Forward algorithm
+# Forward-Forward Neural Networks Library based on PyTorch
 
 FFLib is a neural network library based on PyTorch that aims to implement
 several different types of layers and networks based on the Forward-Forward algorithm.
@@ -10,7 +10,10 @@ to the original design and structure of the PyTorch library.
 
 ### Installing dependencies
 
-PyTorch and torchvision are the only main dependencies needed to run all of the examples for now.
+Dependencies needed to run the code and/or the examples:
+ - [PyTorch](https://pytorch.org/)
+ - [torchvision](https://pytorch.org/)
+ - [tqdm](https://tqdm.github.io/)
 
 ### Examples
 
@@ -55,7 +58,8 @@ The main maintainer of this library is [Mitko Nikov](https://github.com/mitkonik
 ### Developing the library
 
 We are using [poetry](https://python-poetry.org/) to manage, build and publish the python package.
-We recommend downloading poetry and running `poetry install` to install all of the packages.
+We recommend downloading poetry and running `poetry install` to
+install all of the dependencies instead of doing so manually.
 
 To activate the virtual env created by poetry, run `poetry env activate` to get the
 command to activate the env. After activation, you can run anything from within.
@@ -76,7 +80,12 @@ black .
 pytest .
 ```
 
- > We are working on fully automated GitHub workflows to recheck these guidelines.
+Guidelines are now checked using GitHub Workflows.
+When developing the library locally, you can install [act](https://nektosact.com/) to run
+the GitHub workflows on your machine through Docker.
+We also recommend installing the VSCode extension
+[GitHub Local Actions](https://marketplace.visualstudio.com/items?itemName=SanjulaGanepola.github-local-actions)
+to run the workflows from inside VSCode, making the process painless.
 
 ## General Guidelines
 
