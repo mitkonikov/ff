@@ -2,7 +2,7 @@ import torch
 from torch.nn import Linear, Module, ReLU
 from torch.optim import Adam, Optimizer
 
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Any
 
 
 class FFLinear(Linear):
@@ -14,10 +14,10 @@ class FFLinear(Linear):
         lr: float,
         activation_fn: Module = ReLU(),
         maximize: bool = True,
-        optimizer: Callable = Adam,
+        optimizer: Callable[..., Any] = Adam,
         bias: bool = True,
-        device=None,
-        dtype=None,
+        device: Any | None = None,
+        dtype: Any | None = None,
     ):
         """
         Initializes an FF Linear Dense layer.
@@ -45,7 +45,7 @@ class FFLinear(Linear):
         self.activation_fn = activation_fn
         self.opt: Optimizer = optimizer(self.parameters(), lr)
 
-    def set_lr(self, lr: float):
+    def set_lr(self, lr: float) -> None:
         """Use this function to update the learning rate while training.
 
         Args:
@@ -75,12 +75,15 @@ class FFLinear(Linear):
         # Compute the linear transformation followed by the given activation
         # weight.T is 2D tensor (ex: shape (784, 500))
         # ex: (50000, 784) * (784 * 500) => (50000 * 500) + (1 * 500)
-        return self.activation_fn(torch.mm(x_direction, self.weight.T) + self.bias.unsqueeze(0))
+        result: torch.Tensor = self.activation_fn(
+            torch.mm(x_direction, self.weight.T) + self.bias.unsqueeze(0)
+        )
+        return result
 
     def goodness(
         self,
         x: torch.Tensor,
-        logistic_fn: Callable = lambda x: torch.log(1 + torch.exp(x)),
+        logistic_fn: Callable[[torch.Tensor], torch.Tensor] = lambda x: torch.log(1 + torch.exp(x)),
         inverse: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
 
@@ -92,7 +95,7 @@ class FFLinear(Linear):
         return g, y
 
     # train a layer
-    def run_train(self, x_pos: torch.Tensor, x_neg: torch.Tensor):
+    def run_train(self, x_pos: torch.Tensor, x_neg: torch.Tensor) -> None:
         """Run a training iteration on the layer.
 
         Args:
@@ -110,7 +113,7 @@ class FFLinear(Linear):
         self.opt.zero_grad()
 
         # Compute the backward pass
-        loss.backward()
+        loss.backward()  # type: ignore
 
         # Perform a step of optimization
         self.opt.step()

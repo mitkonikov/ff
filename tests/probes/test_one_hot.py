@@ -38,7 +38,7 @@ def mock_callback(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         (20, 5),  # Larger batch, 5 classes
     ],
 )
-def test_predict(batch_size: int, output_classes: int):
+def test_predict(batch_size: int, output_classes: int) -> None:
     torch.manual_seed(42)
 
     # Generate random input tensor (batch_size, feature_dim)
@@ -57,7 +57,7 @@ def test_predict(batch_size: int, output_classes: int):
     ), "Predicted labels must be within range [0, output_classes-1]"
 
 
-def test_callback_is_called():
+def test_callback_is_called() -> None:
     """
     Ensures the callback function is properly called with correct input shapes.
     """
@@ -77,7 +77,7 @@ def test_callback_is_called():
     assert callback_called, "Callback function should be called during prediction"
 
 
-def test_output_consistency():
+def test_output_consistency() -> None:
     """
     Checks if the function produces consistent output given a fixed seed.
     """
@@ -101,7 +101,7 @@ def test_output_consistency():
         (50, 4),
     ],
 )
-def test_predict_correct_label(batch_size: int, output_classes: int):
+def test_predict_correct_label(batch_size: int, output_classes: int) -> None:
     feature_dim = 10
     x = torch.randn(batch_size, feature_dim)
 

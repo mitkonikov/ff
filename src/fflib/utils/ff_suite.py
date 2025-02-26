@@ -9,14 +9,14 @@ from fflib.utils.data.dataprocessor import FFDataProcessor
 from fflib.interfaces import IFFProbe
 from fflib.utils.ff_logger import logger
 
-from typing import Tuple
+from typing import Tuple, List, Dict, Any
 
 
 class FFSuite(IFFSuite):
-    def __init__(self, ff_net: FFNet, probe: IFFProbe, device=None):
+    def __init__(self, ff_net: FFNet, probe: IFFProbe, device: Any | None = None):
         super().__init__(ff_net, probe, device)
 
-    def _validation(self, loader: DataLoader):
+    def _validation(self, loader: DataLoader[Any]) -> None:
         if loader is not None:
             self.net.eval()
             val_accuracy: float = 0
@@ -45,7 +45,7 @@ class FFSuite(IFFSuite):
                 }
             )
 
-    def train(self, dataloader: FFDataProcessor, epochs: int):
+    def train(self, dataloader: FFDataProcessor, epochs: int) -> List[Dict[str, Any]]:
         logger.info("Starting Training...")
         start_time = time.time()
 
@@ -81,7 +81,7 @@ class FFSuite(IFFSuite):
 
         return self.epoch_data
 
-    def test(self, dataloader: FFDataProcessor):
+    def test(self, dataloader: FFDataProcessor) -> Dict[str, Any]:
         loader = dataloader.get_test_loader()
 
         test_correct: int = 0
@@ -106,7 +106,7 @@ class FFSuite(IFFSuite):
         self.test_data = {"test_accuracy": test_accuracy}
         return self.test_data
 
-    def save(self, filepath: str, append_hash: bool = False):
+    def save(self, filepath: str, append_hash: bool = False) -> None:
         data = {
             "test_data": self.test_data,
             "time_to_train": self.time_to_train,
@@ -114,5 +114,13 @@ class FFSuite(IFFSuite):
 
         super()._save(filepath, data, append_hash)
 
-    def load(self, filepath: str):
+    def load(self, filepath: str) -> Any:
+        """Load a pretrained FF model.
+
+        Args:
+            filepath (str): Filepath to the model.
+
+        Returns:
+            Any: IFF type of model.
+        """
         return super()._load(filepath)

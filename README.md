@@ -75,7 +75,7 @@ Run the following commands in the virtual env
 to ensure that everything is according to the guidelines:
 
 ```sh
-mypy .
+mypy . --strict
 black .
 pytest .
 ```

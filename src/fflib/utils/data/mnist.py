@@ -9,7 +9,7 @@ from fflib.utils.data import FFDataProcessor
 from fflib.interfaces.iff import IFF
 
 from enum import Enum
-from typing import Dict
+from typing import Dict, Callable, Any
 
 
 class NegativeGenerator(Enum):
@@ -25,9 +25,9 @@ class FFMNIST(FFDataProcessor):
         validation_split: float | None,
         download: bool = True,
         path: str = "./data",
-        image_transform=Compose([ToTensor(), Lambda(torch.flatten)]),
-        train_kwargs: Dict = {},
-        test_kwargs: Dict = {},
+        image_transform: Callable[..., Any] = Compose([ToTensor(), Lambda(torch.flatten)]),
+        train_kwargs: Dict[str, Any] = {},
+        test_kwargs: Dict[str, Any] = {},
         negative_generator: NegativeGenerator = NegativeGenerator.INVERSE,
     ):
 
@@ -73,16 +73,16 @@ class FFMNIST(FFDataProcessor):
 
         self.train_loader = DataLoader(train_dataset, **self.train_kwargs)
 
-    def get_train_loader(self):
+    def get_train_loader(self) -> DataLoader[Any]:
         return self.train_loader
 
-    def get_val_loader(self):
+    def get_val_loader(self) -> DataLoader[Any]:
         return self.val_loader
 
-    def get_test_loader(self):
+    def get_test_loader(self) -> DataLoader[Any]:
         return self.test_loader
 
-    def get_all_loaders(self):
+    def get_all_loaders(self) -> Dict[str, DataLoader[Any]]:
         return {
             "train": self.get_train_loader(),
             "val": self.get_val_loader(),

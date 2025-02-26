@@ -42,7 +42,7 @@ jobs:
       - name: Run MyPy
         run: |
           export PATH="~/.local/bin:$PATH"
-          poetry run mypy .
+          poetry run mypy . --strict
 
       - name: Run the Formatter checks
         run: |

@@ -14,6 +14,6 @@ class IFF(ABC, Module):
         self,
         x_pos: torch.Tensor,
         x_neg: torch.Tensor,
-    ):
+    ) -> None:
 
         pass

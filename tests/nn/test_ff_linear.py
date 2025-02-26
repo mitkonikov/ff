@@ -4,7 +4,7 @@ import torch
 from fflib.nn.ff_linear import FFLinear
 
 
-def test_setup_linear():
+def test_setup_linear() -> None:
     linear = FFLinear(in_features=10, out_features=2, loss_threshold=20, lr=0.02)
 
     x = torch.randn((8, 10))
@@ -13,7 +13,7 @@ def test_setup_linear():
     assert y.shape == (8, 2)
 
 
-def test_linear_call():
+def test_linear_call() -> None:
     linear = FFLinear(in_features=10, out_features=2, loss_threshold=20, lr=0.02)
 
     x = torch.randn((8, 10))
@@ -25,7 +25,7 @@ def test_linear_call():
     assert y2.requires_grad
 
 
-def test_train_linear_basic():
+def test_train_linear_basic() -> None:
     batch_size = 128
 
     torch.manual_seed(42)
@@ -57,4 +57,3 @@ def test_train_linear_basic():
     # Expect the minimum goodness of the positive data to be bigger than the max goodness of neg.
     assert g_pos.min().item() > g_neg.max().item()
     assert g_pos.mean().item() > g_neg.mean().item()
-    # assert False

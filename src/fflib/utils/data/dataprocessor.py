@@ -10,25 +10,25 @@ from typing import Tuple, Dict, Any
 
 class FFDataProcessor(ABC):
     @staticmethod
-    def check_splits(splits: Tuple[float, float, float] | Tuple[float, float]):
+    def check_splits(splits: Tuple[float, float, float] | Tuple[float, float]) -> None:
         assert abs(sum(splits) - 1) < 1e-4
         assert all(0 <= s <= 1 for s in splits)
         assert len(splits) in [2, 3]
 
     @abstractmethod
-    def get_train_loader(self) -> DataLoader:
+    def get_train_loader(self) -> DataLoader[Any]:
         pass
 
     @abstractmethod
-    def get_val_loader(self) -> DataLoader | None:
+    def get_val_loader(self) -> DataLoader[Any] | None:
         pass
 
     @abstractmethod
-    def get_test_loader(self) -> DataLoader:
+    def get_test_loader(self) -> DataLoader[Any]:
         pass
 
     @abstractmethod
-    def get_all_loaders(self) -> Dict[str, DataLoader] | Dict[str, Any]:
+    def get_all_loaders(self) -> Dict[str, DataLoader[Any]] | Dict[str, Any]:
         """This function should return a dictionary containing 2 or 3 dataloader
         in the following form:
 

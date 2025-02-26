@@ -1,21 +1,17 @@
 import torch
 import os
 import datetime
-import time
 
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 from random import randint
-from fflib.utils.data.dataprocessor import FFDataProcessor
 from fflib.interfaces import IFF, IFFProbe
 from fflib.utils.ff_logger import logger
 
-from typing import Callable, Any, Tuple
+from typing import Callable, List, Dict, Any
 from typing_extensions import Self
 
 
 class IFFSuite:
-    def __init__(self, ff_net: IFF, probe: IFFProbe, device=None):
+    def __init__(self, ff_net: IFF, probe: IFFProbe, device: Any | None = None):
         self.net = ff_net
         self.probe = probe
 
@@ -24,13 +20,13 @@ class IFFSuite:
             self.net.to(device)
 
         # Default member variables
-        self.pre_epoch_callback: Callable | None = None
+        self.pre_epoch_callback: Callable[[IFF, int], Any] | None = None
         self.current_epoch: int = 0
-        self.epoch_data: list[dict] = []
+        self.epoch_data: List[Dict[str, Any]] = []
 
         logger.info("Created FFSuite.")
 
-    def set_pre_epoch_callback(self, callback: Callable[[Self, int], Any]):
+    def set_pre_epoch_callback(self, callback: Callable[[IFF, int], Any]) -> None:
         """This function allows you to hook a callback
         to be called before the training of each epoch.
 
@@ -54,13 +50,13 @@ class IFFSuite:
         self.pre_epoch_callback = callback
 
     @staticmethod
-    def append_to_filename(path, suffix):
+    def append_to_filename(path: str, suffix: str) -> str:
         dir_name, base_name = os.path.split(path)
         name, ext = os.path.splitext(base_name)
         new_filename = f"{name}{suffix}{ext}"
         return os.path.join(dir_name, new_filename)
 
-    def _save(self, filepath: str, extend_dict: dict, append_hash: bool = False):
+    def _save(self, filepath: str, extend_dict: Dict[str, Any], append_hash: bool = False) -> None:
         data = {
             "hidden_layers": self.net.get_layer_count(),
             "current_epoch": self.current_epoch,
@@ -83,7 +79,7 @@ class IFFSuite:
 
         torch.save(data, filepath)
 
-    def _load(self, filepath: str):
+    def _load(self, filepath: str) -> Any:
         data = torch.load(filepath)
 
         for key, value in data.items():

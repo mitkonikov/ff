@@ -5,7 +5,7 @@ from fflib.nn.ff_net import FFNet
 from fflib.nn.ff_linear import FFLinear
 
 
-def test_ff_net_basic():
+def test_ff_net_basic() -> None:
     """
     Tests the basic functionality of a FF network with 2 layers.
     The data is randomly constructed in such a way that
