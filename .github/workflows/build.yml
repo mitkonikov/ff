@@ -73,6 +73,8 @@ jobs:
   publish:
     needs: check-and-build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 🚀 Grants permission to push tags
     if: startsWith(github.ref, 'refs/tags/v')  # Ensure it only runs on version tags
     steps:
       - uses: actions/checkout@v4
