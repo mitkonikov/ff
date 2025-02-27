@@ -1,4 +1,4 @@
-# Forward-Forward Neural Networks Library based on PyTorch
+# Forward-Forward Neural Networks Library
 
 FFLib is a neural network library based on PyTorch that aims to implement
 several different types of layers and networks based on the Forward-Forward algorithm.
@@ -6,7 +6,9 @@ The library also provides a suite of tools for training, validating, testing, de
 with Forward-Forward-based networks. We aim to make this library as close as possible
 to the original design and structure of the PyTorch library.
 
-<img src="https://raw.githubusercontent.com/mitkonikov/ff/refs/heads/main/docs/figures/logo.png" width="40%">
+<p align="center">
+    <img src="https://raw.githubusercontent.com/mitkonikov/ff/refs/heads/main/docs/figures/logo.png" width="60%">
+</p>
 
 ## Getting Started
 
