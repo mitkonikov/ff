@@ -6,6 +6,8 @@ The library also provides a suite of tools for training, validating, testing, de
 with Forward-Forward-based networks. We aim to make this library as close as possible
 to the original design and structure of the PyTorch library.
 
+<img src="https://raw.githubusercontent.com/mitkonikov/ff/refs/heads/main/docs/figures/logo.png" width="40%">
+
 ## Getting Started
 
 ### Installing dependencies
