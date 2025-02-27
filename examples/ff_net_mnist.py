@@ -31,10 +31,20 @@ lt = 20
 lr = 0.02
 
 layer1 = FFLinear(
-    in_features=10 + 28 * 28, out_features=2000, loss_threshold=lt, lr=lr, device=device
+    in_features=10 + 28 * 28,
+    out_features=2000,
+    loss_threshold=lt,
+    lr=lr,
+    device=device,
 )
 
-layer2 = FFLinear(in_features=2000, out_features=2000, loss_threshold=lt, lr=lr, device=device)
+layer2 = FFLinear(
+    in_features=2000,
+    out_features=2000,
+    loss_threshold=lt,
+    lr=lr,
+    device=device,
+)
 
 # Setup a basic network
 logger.info("Setting up FFNet...")
@@ -46,15 +56,15 @@ probe = TryAllClasses(lambda x, y: net(torch.cat((x, y), 1)), output_classes=10)
 
 # %% Create Test Suite
 logger.info("Setting up a TestSuite...")
-suite = FFSuite(net, probe, device)
+suite = FFSuite(net, probe, mnist, device)
 
 # %% Run Train
 logger.info("Running the training procedure...")
-suite.train(mnist, 60)
+suite.train(60)
 
 # %% Run Test
 logger.info("Running the testing procedure...")
-suite.test(mnist)
+suite.test()
 
 # %% Save Model
 logger.info("Saving model...")

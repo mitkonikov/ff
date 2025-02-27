@@ -3,17 +3,27 @@ import os
 import datetime
 
 from random import randint
+from tqdm import tqdm
+from torch.utils.data import DataLoader
 from fflib.interfaces import IFF, IFFProbe
 from fflib.utils.ff_logger import logger
+from fflib.utils.data.dataprocessor import FFDataProcessor
 
-from typing import Callable, List, Dict, Any
-from typing_extensions import Self
+from abc import abstractmethod
+from typing import Callable, List, Dict, Tuple, Any
 
 
 class IFFSuite:
-    def __init__(self, ff_net: IFF, probe: IFFProbe, device: Any | None = None):
+    def __init__(
+        self,
+        ff_net: IFF,
+        probe: IFFProbe,
+        dataloader: FFDataProcessor,
+        device: Any | None = None,
+    ):
         self.net = ff_net
         self.probe = probe
+        self.dataloader = dataloader
 
         self.device = device
         if device is not None:
@@ -49,6 +59,70 @@ class IFFSuite:
 
         self.pre_epoch_callback = callback
 
+    def run_test_epoch(self, loader: DataLoader[Any]) -> float:
+        self.net.eval()
+        test_correct: int = 0
+        test_total: int = 0
+
+        with torch.no_grad():
+            for b in loader:
+                batch: Tuple[torch.Tensor, torch.Tensor] = b
+                x, y = batch
+                if self.device is not None:
+                    x, y = x.to(self.device), y.to(self.device)
+
+                output = self._test(x)
+
+                test_total += y.size(0)
+                test_correct += int((output == y).sum().item())
+
+        return test_correct / test_total
+
+    def run_train_epoch(self) -> None:
+        loaders = self.dataloader.get_all_loaders()
+
+        # Training phase
+        self.net.train()
+
+        if self.pre_epoch_callback is not None:
+            self.pre_epoch_callback(self.net, self.current_epoch)
+
+        for b in tqdm(loaders["train"]):
+            batch: Tuple[torch.Tensor, torch.Tensor] = b
+            x, y = batch
+            if self.device is not None:
+                x, y = x.to(self.device), y.to(self.device)
+
+            self._train(x, y)
+
+        # Validation phase
+        if loaders["val"] is not None:
+            val_accuracy = self.run_test_epoch(loaders["val"])
+            logger.info(f"Val Accuracy: {val_accuracy:.4f}")
+            self.epoch_data.append(
+                {
+                    "epoch": self.current_epoch + 1,
+                    "val_accuracy": val_accuracy,
+                }
+            )
+
+        self.current_epoch += 1
+
+    @abstractmethod
+    def _train(self, x: torch.Tensor, y: torch.Tensor) -> None:
+        """
+        Must be implemented by derived class.
+        """
+        pass
+
+    @abstractmethod
+    def _test(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Must be implemented by derived class.
+        It should accepts X and return a prediction y.
+        """
+        pass
+
     @staticmethod
     def append_to_filename(path: str, suffix: str) -> str:
         dir_name, base_name = os.path.split(path)
@@ -56,7 +130,9 @@ class IFFSuite:
         new_filename = f"{name}{suffix}{ext}"
         return os.path.join(dir_name, new_filename)
 
-    def _save(self, filepath: str, extend_dict: Dict[str, Any], append_hash: bool = False) -> None:
+    def save(
+        self, filepath: str, extend_dict: Dict[str, Any] = {}, append_hash: bool = False
+    ) -> None:
         data = {
             "hidden_layers": self.net.get_layer_count(),
             "current_epoch": self.current_epoch,
@@ -79,7 +155,16 @@ class IFFSuite:
 
         torch.save(data, filepath)
 
-    def _load(self, filepath: str) -> Any:
+    def load(self, filepath: str) -> Any:
+        """Load a pretrained FF model.
+
+        Args:
+            filepath (str): Filepath to the model.
+
+        Returns:
+            Any: IFF type of model.
+        """
+
         data = torch.load(filepath)
 
         for key, value in data.items():
