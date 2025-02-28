@@ -21,7 +21,8 @@ class FFSuite(IFFSuite):
         super().__init__(ff_net, probe, dataloader, device)
 
     def _train(self, x: torch.Tensor, y: torch.Tensor) -> None:
-        x_pos = self.dataloader.prepare_input(x, y)
+        y_enc = self.dataloader.encode_output(y)
+        x_pos = self.dataloader.combine_to_input(x, y_enc)
         x_neg = self.dataloader.generate_negative(x, y, self.net)
 
         self.net.run_train(x_pos, x_neg)

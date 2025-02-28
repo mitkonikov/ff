@@ -89,8 +89,10 @@ class FFMNIST(FFDataProcessor):
             "test": self.get_test_loader(),
         }
 
-    def prepare_input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-        y = one_hot(y, num_classes=10).float()
+    def encode_output(self, y: torch.Tensor) -> torch.Tensor:
+        return one_hot(y, num_classes=10).float()
+
+    def combine_to_input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         return torch.cat((x, y), 1)
 
     def generate_negative(self, x: torch.Tensor, y: torch.Tensor, net: IFF) -> torch.Tensor:

@@ -78,7 +78,7 @@ class IFFSuite:
 
         return test_correct / test_total
 
-    def run_train_epoch(self) -> None:
+    def run_train_epoch(self, validate: bool = True) -> None:
         loaders = self.dataloader.get_all_loaders()
 
         # Training phase
@@ -96,7 +96,7 @@ class IFFSuite:
             self._train(x, y)
 
         # Validation phase
-        if loaders["val"] is not None:
+        if validate and loaders["val"] is not None:
             val_accuracy = self.run_test_epoch(loaders["val"])
             logger.info(f"Val Accuracy: {val_accuracy:.4f}")
             self.epoch_data.append(

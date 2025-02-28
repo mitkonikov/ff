@@ -11,3 +11,12 @@ class IFFProbe(ABC):
     ) -> torch.Tensor:
 
         pass
+
+
+class NoProbe(IFFProbe):
+    def predict(
+        self,
+        x_pos: torch.Tensor,
+    ) -> torch.Tensor:
+
+        raise RuntimeError("Predict called on NoProbe!")

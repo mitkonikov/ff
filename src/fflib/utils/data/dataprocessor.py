@@ -48,7 +48,11 @@ class FFDataProcessor(ABC):
         pass
 
     @abstractmethod
-    def prepare_input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    def encode_output(self, y: torch.Tensor) -> torch.Tensor:
+        pass
+
+    @abstractmethod
+    def combine_to_input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         pass
 
     @abstractmethod
