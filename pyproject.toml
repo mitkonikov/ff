@@ -25,6 +25,7 @@ mypy = "^1.15.0"
 black = "^25.1.0"
 pytest = "^8.3.4"
 types-tqdm = "^4.67.0.20241221"
+ipykernel = "^6.29.5"
 
 [project.urls]
 homepage = "https://github.com/mitkonikov/ff"
