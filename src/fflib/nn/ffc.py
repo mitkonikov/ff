@@ -46,7 +46,7 @@ class FFC(IFF, Module):
         classifier_output = self.relu(classifier_output)
         return classifier_output.argmax(1)
 
-    def run_train(self, x_pos: torch.Tensor, x_neg: torch.Tensor) -> None:
+    def run_train_combined(self, x_pos: torch.Tensor, x_neg: torch.Tensor) -> None:
         for _, layer in enumerate(self.layers):
             layer.run_train(x_pos, x_neg)
 
@@ -65,3 +65,15 @@ class FFC(IFF, Module):
         loss = self.criterion(prediction, y_pos)
         loss.backward()
         self.optimizer.step()
+
+    def run_train(
+        self,
+        x_pos: torch.Tensor,
+        y_pos: torch.Tensor,
+        x_neg: torch.Tensor,
+        y_neg: torch.Tensor,
+    ) -> None:
+
+        raise NotImplementedError(
+            "Use run_train_combined in conjunction with the FFDataProcessor's combine_to_input method."
+        )

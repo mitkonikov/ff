@@ -29,7 +29,7 @@ def test_ff_net_basic() -> None:
     x_test_neg = torch.cat((torch.zeros((batch_size, 5)), torch.rand((batch_size, 5))), dim=1)
 
     for i in range(50):
-        net.run_train(x_train_pos, x_train_neg)
+        net.run_train_combined(x_train_pos, x_train_neg)
 
     g_pos = net.forward(x_test_pos)
     g_neg = net.forward(x_test_neg)

@@ -1,6 +1,7 @@
 import torch
 import os
 import datetime
+import time
 
 from random import randint
 from tqdm import tqdm
@@ -33,6 +34,8 @@ class IFFSuite:
         self.pre_epoch_callback: Callable[[IFF, int], Any] | None = None
         self.current_epoch: int = 0
         self.epoch_data: List[Dict[str, Any]] = []
+        self.time_to_train: float = 0
+        self.test_accuracy: float = 0
 
         logger.info("Created FFSuite.")
 
@@ -123,6 +126,22 @@ class IFFSuite:
         """
         pass
 
+    def train(self, epochs: int) -> None:
+        logger.info("Starting Training...")
+        start_time = time.time()
+
+        for _ in range(epochs):
+            self.run_train_epoch()
+
+        # Measure the time
+        end_time = time.time()
+        self.time_to_train = end_time - start_time
+
+    def test(self) -> float:
+        self.test_accuracy = self.run_test_epoch(self.dataloader.get_test_loader())
+        logger.info(f"Test Accuracy: {self.test_accuracy:.4f}")
+        return self.test_accuracy
+
     @staticmethod
     def append_to_filename(path: str, suffix: str) -> str:
         dir_name, base_name = os.path.split(path)
@@ -139,6 +158,8 @@ class IFFSuite:
             "epoch_data": self.epoch_data,
             "date": str(datetime.datetime.now()),
             "net": self.net,
+            "test_accuracy": self.test_accuracy,
+            "time_to_train": self.time_to_train,
         }
 
         # Check key duplication

@@ -31,7 +31,7 @@ class FFNet(IFF, Module):
 
         return torch.sum(torch.stack(result), dim=0)
 
-    def run_train(
+    def run_train_combined(
         self,
         x_pos: torch.Tensor,
         x_neg: torch.Tensor,
@@ -43,3 +43,15 @@ class FFNet(IFF, Module):
 
             x_pos = layer(x_pos)
             x_neg = layer(x_neg)
+
+    def run_train(
+        self,
+        x_pos: torch.Tensor,
+        y_pos: torch.Tensor,
+        x_neg: torch.Tensor,
+        y_neg: torch.Tensor,
+    ) -> None:
+
+        raise NotImplementedError(
+            "Use run_train_combined in conjunction with the FFDataProcessor's combine_to_input method."
+        )
