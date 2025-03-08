@@ -80,4 +80,4 @@ logger.info("Loading the saved model...")
 net = suite.load("../models/ff_net_mnist_d9d9f7.pt")  # Change the filename
 
 # %% Retest the model
-suite.test(mnist)
+suite.test()
