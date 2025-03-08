@@ -2,29 +2,28 @@ import torch
 
 from fflib.utils.data.dataprocessor import FFDataProcessor
 from fflib.utils.iff_suite import IFFSuite
-from fflib.nn.ff_net import FFNet
+from fflib.nn.ff_rnn import FFRNN
 from fflib.interfaces import IFFProbe
 
 from typing import Any
 
 
-class FFSuite(IFFSuite):
+class FFRNNSuite(IFFSuite):
     def __init__(
         self,
-        ff_net: FFNet,
+        ffc: FFRNN,
         probe: IFFProbe,
         dataloader: FFDataProcessor,
         device: Any | None = None,
     ):
-        super().__init__(ff_net, probe, dataloader, device)
+        super().__init__(ffc, probe, dataloader, device)
+        self.time_to_train: float = 0
 
     def _train(self, x: torch.Tensor, y: torch.Tensor) -> None:
         y_enc = self.dataloader.encode_output(y)
-        x_pos = self.dataloader.combine_to_input(x, y_enc)
         x_neg, y_neg = self.dataloader.generate_negative(x, y, self.net)
-        x_neg = self.dataloader.combine_to_input(x_neg, y_neg)
 
-        self.net.run_train_combined(x_pos, x_neg)
+        self.net.run_train(x, y_enc, x_neg, y_neg)
 
     def _test(self, x: torch.Tensor) -> torch.Tensor:
         return self.probe.predict(x)

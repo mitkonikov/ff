@@ -9,7 +9,7 @@ from fflib.utils.data import FFDataProcessor
 from fflib.interfaces.iff import IFF
 
 from enum import Enum
-from typing import Dict, Callable, Any
+from typing import Tuple, Dict, Callable, Any
 
 
 class NegativeGenerator(Enum):
@@ -95,19 +95,22 @@ class FFMNIST(FFDataProcessor):
     def combine_to_input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         return torch.cat((x, y), 1)
 
-    def generate_negative(self, x: torch.Tensor, y: torch.Tensor, net: IFF) -> torch.Tensor:
+    def generate_negative(
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        net: IFF,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
 
         if self.negative_generator == NegativeGenerator.HIGHEST_INCORRECT:
             raise NotImplementedError()
 
         if self.negative_generator == NegativeGenerator.INVERSE:
             y_hot = 1 - one_hot(y, num_classes=10).float()
-            result = torch.cat((x, y_hot), 1)
-            return result
+            return x, y_hot
 
         rnd = torch.rand((x.shape[0], 10), device=x.device)
         rnd[torch.arange(x.shape[0]), y] = 0
         y_new = rnd.argmax(1)
         y_hot = one_hot(y_new, num_classes=10).float()
-        result = torch.cat((x, y_hot), 1)
-        return result
+        return x, y_hot

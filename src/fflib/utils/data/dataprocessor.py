@@ -56,5 +56,10 @@ class FFDataProcessor(ABC):
         pass
 
     @abstractmethod
-    def generate_negative(self, x: torch.Tensor, y: torch.Tensor, net: IFF) -> torch.Tensor:
+    def generate_negative(
+        self,
+        x: torch.Tensor,
+        y: torch.Tensor,
+        net: IFF,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         pass
