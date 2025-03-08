@@ -101,7 +101,7 @@ class IFFSuite:
         # Validation phase
         if validate and loaders["val"] is not None:
             val_accuracy = self.run_test_epoch(loaders["val"])
-            logger.info(f"Val Accuracy: {val_accuracy:.4f}")
+            logger.info(f"Epoch: {self.current_epoch + 1} - Val Accuracy: {val_accuracy:.4f}")
             self.epoch_data.append(
                 {
                     "epoch": self.current_epoch + 1,
@@ -151,7 +151,7 @@ class IFFSuite:
 
     def save(
         self, filepath: str, extend_dict: Dict[str, Any] = {}, append_hash: bool = False
-    ) -> None:
+    ) -> str:
         data = {
             "hidden_layers": self.net.get_layer_count(),
             "current_epoch": self.current_epoch,
@@ -175,6 +175,7 @@ class IFFSuite:
             filepath = self.append_to_filename(filepath, suffix)
 
         torch.save(data, filepath)
+        return filepath
 
     def load(self, filepath: str) -> Any:
         """Load a pretrained FF model.

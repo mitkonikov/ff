@@ -7,7 +7,7 @@ from fflib.nn.ffc import FFC
 from fflib.interfaces import IFFProbe
 from fflib.utils.ff_logger import logger
 
-from typing import Dict, Any, cast
+from typing import Any, cast
 
 
 class FFCSuite(IFFSuite):
@@ -29,7 +29,8 @@ class FFCSuite(IFFSuite):
         if self.train_classifier == False:
             y_enc = self.dataloader.encode_output(y)
             x_pos = self.dataloader.combine_to_input(x, y_enc)
-            x_neg = self.dataloader.generate_negative(x, y, self.net)
+            x_neg, y_neg = self.dataloader.generate_negative(x, y, self.net)
+            x_neg = self.dataloader.combine_to_input(x_neg, y_neg)
 
             self.net.run_train_combined(x_pos, x_neg)
         else:
