@@ -187,7 +187,7 @@ class IFFSuite:
             Any: IFF type of model.
         """
 
-        data = torch.load(filepath)
+        data = torch.load(filepath, weights_only=False)
 
         for key, value in data.items():
             setattr(self, key, value)
