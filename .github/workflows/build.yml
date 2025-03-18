@@ -117,29 +117,12 @@ jobs:
       - name: Test Minimal Examples
         run: |
           export PATH="~/.local/bin:$PATH"
-          # Run the examples in parallel
-          poetry run python ./examples/ff_net_mnist.py -e 1 -u 0.01 & pid1=$!
-          poetry run python ./examples/ff_c_mnist.py -e 1 -u 0.01  & pid2=$!
-          poetry run python ./examples/ff_rnn_mnist.py -e 1 -u 0.01  & pid3=$!
+          mkdir ./models
 
-          # Wait for all processes to finish
-          wait $pid1
-          exit_code1=$?
-
-          wait $pid2
-          exit_code2=$?
-
-          wait $pid3
-          exit_code3=$?
-
-          # Check if any process failed
-          if [ $exit_code1 -ne 0 ] || [ $exit_code2 -ne 0 ] || [ $exit_code3 -ne 0 ]; then
-            echo "One or more examples failed!"
-            exit 1
-          else
-            echo "All examples succeeded!"
-            exit 0
-          fi
+          # Run the examples
+          poetry run python ./examples/ff_net_mnist.py -e 1 -u 0.01
+          poetry run python ./examples/ff_c_mnist.py -e 1 -u 0.01
+          poetry run python ./examples/ff_rnn_mnist.py -e 1 -u 0.01
 
   publish:
     needs: check-and-build
