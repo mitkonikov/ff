@@ -17,6 +17,7 @@ from fflib.utils.ff_logger import logger
 # It should skip the argument parser if it finds it runs within an IPython shell.
 parser = argparse.ArgumentParser(exit_on_error=False)
 parser.add_argument("-e", "--epochs", help="Number of epochs", default=60, type=int)
+parser.add_argument("-u", "--use", help="Part of MNIST to use", default=1.0, type=float)
 args = parser.parse_args(args=("" if "get_ipython" in globals() else None))
 
 # Setup the device
@@ -28,7 +29,12 @@ torch.manual_seed(42)
 
 # %% Setup Dataset
 logger.info("Setting up MNIST dataset...")
-mnist = FFMNIST(batch_size=128, validation_split=0.1, negative_generator=MNISTNEG.RANDOM)
+mnist = FFMNIST(
+    batch_size=128,
+    validation_split=0.1,
+    negative_generator=MNISTNEG.RANDOM,
+    use=args.use,
+)
 
 # %% Setup the network
 logger.info("Setting up the FFRNN...")

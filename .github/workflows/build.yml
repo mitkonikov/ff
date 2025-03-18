@@ -70,6 +70,77 @@ jobs:
           name: FFLib
           path: ./dist
 
+  test-examples:
+    needs: check-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: "latest"
+      
+      - name: Setup a local virtual environment
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      
+      - uses: actions/cache/restore@v4
+        name: Restore the cache for poetry
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+
+      - name: Activate Virtual Env
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          poetry env activate
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: FFLib
+          path: ./dist
+
+      - name: Install FFLib
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          whl_file=$(ls ./dist/fflib-*.whl)
+          poetry run pip install "$whl_file"
+
+      - name: Test Minimal Examples
+        run: |
+          export PATH="~/.local/bin:$PATH"
+          # Run the examples in parallel
+          poetry run python ./examples/ff_net_mnist.py -e 1 -u 0.01 & pid1=$!
+          poetry run python ./examples/ff_c_mnist.py -e 1 -u 0.01  & pid2=$!
+          poetry run python ./examples/ff_rnn_mnist.py -e 1 -u 0.01  & pid3=$!
+
+          # Wait for all processes to finish
+          wait $pid1
+          exit_code1=$?
+
+          wait $pid2
+          exit_code2=$?
+
+          wait $pid3
+          exit_code3=$?
+
+          # Check if any process failed
+          if [ $exit_code1 -ne 0 ] || [ $exit_code2 -ne 0 ] || [ $exit_code3 -ne 0 ]; then
+            echo "One or more examples failed!"
+            exit 1
+          else
+            echo "All examples succeeded!"
+            exit 0
+          fi
+
   publish:
     needs: check-and-build
     runs-on: ubuntu-latest

@@ -29,6 +29,7 @@ class FFMNIST(FFDataProcessor):
         train_kwargs: Dict[str, Any] = {},
         test_kwargs: Dict[str, Any] = {},
         negative_generator: NegativeGenerator = NegativeGenerator.INVERSE,
+        use: float = 1.0,
     ):
 
         assert isinstance(batch_size, int)
@@ -41,6 +42,8 @@ class FFMNIST(FFDataProcessor):
 
         train_kwargs["shuffle"] = True
 
+        assert use >= 0.0 and use <= 1.0
+
         self.validation_split = validation_split
         self.download = download
         self.path = path
@@ -48,6 +51,7 @@ class FFMNIST(FFDataProcessor):
         self.train_kwargs = train_kwargs
         self.test_kwargs = test_kwargs
         self.negative_generator = negative_generator
+        self.use = use
 
         self.train_dataset = MNIST(
             self.path, train=True, download=self.download, transform=self.image_transform
@@ -57,20 +61,31 @@ class FFMNIST(FFDataProcessor):
         )
         self.test_loader = DataLoader(self.test_dataset, **self.test_kwargs)
 
+        dataset_size = len(self.train_dataset)
+        used_dataset_size = int(dataset_size * self.use)
+        not_used_dataset_size = dataset_size - used_dataset_size
+
         # In case a validation split is given
         if self.validation_split:
             # Determine the sizes of training and validation sets
-            dataset_size = len(self.train_dataset)
-            val_size = int(self.validation_split * dataset_size)
-            train_size = dataset_size - val_size
+            val_size = int(self.validation_split * used_dataset_size)
+            train_size = used_dataset_size - val_size
 
             # Split dataset into train and validation sets
-            train_dataset, val_dataset = random_split(self.train_dataset, [train_size, val_size])
+            train_dataset, val_dataset, _ = random_split(
+                self.train_dataset, [train_size, val_size, not_used_dataset_size]
+            )
 
             # Create data loaders for train and validation
             self.train_loader = DataLoader(train_dataset, **self.train_kwargs)
             self.val_loader = DataLoader(val_dataset, **self.test_kwargs)
 
+            assert len(self.train_loader) + len(self.val_loader) <= used_dataset_size
+            return
+
+        train_dataset, _ = random_split(
+            self.train_dataset, [used_dataset_size, not_used_dataset_size]
+        )
         self.train_loader = DataLoader(train_dataset, **self.train_kwargs)
 
     def get_train_loader(self) -> DataLoader[Any]:

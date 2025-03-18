@@ -3,6 +3,7 @@ import torch
 
 import sys
 import os
+import argparse
 
 # Get the absolute path of the src directory
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
@@ -14,16 +15,27 @@ from fflib.utils.data.mnist import FFMNIST, NegativeGenerator as MNISTNEG
 from fflib.utils.ffc_suite import FFCSuite
 from fflib.utils.ff_logger import logger
 
+# It should skip the argument parser if it finds it runs within an IPython shell.
+parser = argparse.ArgumentParser(exit_on_error=False)
+parser.add_argument("-e", "--epochs", help="Number of epochs", default=60, type=int)
+parser.add_argument("-u", "--use", help="Part of MNIST to use", default=1.0, type=float)
+args = parser.parse_args(args=("" if "get_ipython" in globals() else None))
+
 # Setup the device
 device_type = "cuda" if torch.cuda.is_available() else "cpu"
-print("Device type:", device_type)
+logger.info(f"Device type: {device_type}")
 device = torch.device(device_type)
 
 torch.manual_seed(42)
 
 # %% Setup Dataset
 logger.info("Setting up MNIST dataset...")
-mnist = FFMNIST(batch_size=128, validation_split=0.1, negative_generator=MNISTNEG.RANDOM)
+mnist = FFMNIST(
+    batch_size=128,
+    validation_split=0.1,
+    negative_generator=MNISTNEG.RANDOM,
+    use=args.use,
+)
 
 # %% Setup the layers
 logger.info("Setting up layers...")
@@ -56,9 +68,10 @@ suite = FFCSuite(net, NoProbe(), mnist, device)
 
 # %% Run Train
 logger.info("Running the training procedure...")
-suite.train(30)
+logger.info(f"Parameters: Epochs = {args.epochs}")
+suite.train(args.epochs)
 suite.train_switch(True)
-suite.train(30)
+suite.train(args.epochs)
 
 # %% Run Test
 logger.info("Running the testing procedure...")
@@ -66,16 +79,17 @@ suite.test()
 
 # %% Save Model
 logger.info("Saving model...")
-suite.save("./models/ff_c_mnist.pt", append_hash=True)
-
-exit(0)
+model_path = suite.save("./models/ff_c_mnist.pt", append_hash=True)
 
 # %% Load Model
 for i in range(len(net.layers)):
     net.layers[i].reset_parameters()
 
+# Uncomment this and change the filename
+# model_path = "../models/ff_c_mnist_da9990.pt"
+
 logger.info("Loading the saved model...")
-net = suite.load("../models/ff_c_mnist_da9990.pt")  # Change the filename
+net = suite.load(model_path)  # Change the filename
 
 # %% Retest the model
 suite.test()
