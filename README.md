@@ -1,7 +1,7 @@
 # Forward-Forward Neural Networks Library
 
-FFLib is a neural network library based on PyTorch that aims to implement
-several different types of layers and networks based on the Forward-Forward algorithm.
+FFLib is a neural network library based on PyTorch [2] that aims to implement
+several different types of layers and networks based on the Forward-Forward algorithm [1].
 The library also provides a suite of tools for training, validating, testing, debugging and experimenting
 with Forward-Forward-based networks. We aim to make this library as close as possible
 to the original design and structure of the PyTorch library.
@@ -31,7 +31,7 @@ and making interactive execution only afterwards.
 
 The Forward-Forward Algorithm was introduced in Geoffrey Hinton's paper
 ["The Forward-Forward Algorithm: Some Preliminary Investigations"](https://arxiv.org/abs/2212.13345)
-with the following abstract:
+[1] with the following abstract:
 
 ```
 The aim of this paper is to introduce a new learning procedure for neural networks and to
@@ -47,6 +47,50 @@ the negative passes could be done offline, which would make the learning much si
 in the positive pass and allow video to be pipelined through the network without ever
 storing activities or stopping to propagate derivatives.
 ```
+
+## Types of FF Networks
+
+There are 3 different types of Forward-Forward-based Neural Networks implemented in the FFLib:
+ - [**FFNet**](#ffnet) - [example usage](./examples/ff_net_mnist.py)
+ - [**FF+C**](#ffc) - [example usage](./examples/ff_c_mnist.py)
+ - [**FFRNN**](#ffrnn) - [example usage](./examples/ff_rnn_mnist.py)
+
+### FFNet
+
+The basic example of a Neural Network based on the Forward-Forward Algorithm.
+In the example file the following network specifications are used:
+ - 2 Dense layers with 2000 neurons each
+ - Predicting the MNIST dataset with TryAll probe
+ - Batch Size of 128
+
+When a dense layer accepts an input, it is first detached from the graph
+and normalized before applying the weight multiplication.
+Essentially, it's just a linear layer that gets a detached normalized input.
+The trick is that each layer optimizes its "goodness"
+to be positive for "positive" data and negative for "negative" data.
+In the case of FFNet, the input and output has to be combined
+and given as an input to the network (to the first layer).
+Since there's no output of the network, we have to try all inputs when predicting.
+In the FFLib, there are special classes called [probes](./src/fflib/probes/__init__.py).
+We use the [TryAll probe](./src/fflib/probes/one_hot.py) to try all possible one-hot labels.
+
+### FF+C
+
+FF+C is a type of hybrid Neural Network that uses both, the Forward-Forward Algorithm
+and ordinary backpropagation to avoid the need ot the TryAll probe.
+The FF part is used as a feature extractor and it is trained the same way as the original FF network.
+The Classifier is another dense layer that as input gets the
+concatenated activations from both of the FF Dense layers and tries to predict the one-hot label.
+
+### FFRNN
+
+The Forward-Forward Recurrent Neural Network is the most complex type of FF network implemented
+in the FFLib. It is made of a special type of layer called [FFRecurrentLayer](./src/fflib/nn/ff_recurrent_layer.py).
+The example file contains an example usage of the FFRNN with 2 FF Recurrent Layers, both with 2000 neurons.
+These networks are quite large due to the fact that each layer has not only weights
+from the previous layer, but also backward weights from the next layer.
+These networks have to be trained with multiple frames per batch, thus
+requiring even more time for both, training and inference.
 
 ## Contributions
 
@@ -91,6 +135,8 @@ We also recommend installing the VSCode extension
 [GitHub Local Actions](https://marketplace.visualstudio.com/items?itemName=SanjulaGanepola.github-local-actions)
 to run the workflows from inside VSCode, making the process painless.
 
+Example scenarios are also tested in GitHub Actions by running them from the CLI.
+
 ## General Guidelines
 
 Here are a few guidelines to following while contributing on the library:
@@ -100,3 +146,8 @@ Here are a few guidelines to following while contributing on the library:
  - Strict formatting style guidelines using `black`
  - No recursion (at our abstraction level)
  - Nicely documented functions and classes
+
+## References
+
+ - [**[1]**](https://arxiv.org/abs/2212.13345) - Hinton, G. (2022). The Forward-Forward Algorithm: Some preliminary investigations.
+ - [**[2]**](https://pytorch.org/) - PyTorch.
