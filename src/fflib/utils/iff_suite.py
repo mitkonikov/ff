@@ -17,16 +17,22 @@ from typing import Callable, List, Dict, Tuple, Any
 class IFFSuite:
     def __init__(
         self,
-        ff_net: IFF,
+        ff_net: IFF | str,
         probe: IFFProbe,
         dataloader: FFDataProcessor,
         device: Any | None = None,
     ):
-        self.net = ff_net
+
+        self.device = device
         self.probe = probe
         self.dataloader = dataloader
 
-        self.device = device
+        if isinstance(ff_net, str):
+            logger.info(f"Loading FFNet from file {ff_net}...")
+            self.net = self.load(ff_net)
+        else:
+            self.net = ff_net
+
         if device is not None:
             self.net.to(device)
 

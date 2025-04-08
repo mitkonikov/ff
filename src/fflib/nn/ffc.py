@@ -1,7 +1,7 @@
 import torch
 
 from torch.nn import Module
-from torch.optim import Adam
+from torch.optim import Adam, Optimizer
 from fflib.interfaces.iff import IFF
 from fflib.nn.ff_linear import FFLinear
 
@@ -27,16 +27,20 @@ class FFC(IFF, Module):
         in_features = sum(layer.out_features for layer in self.layers)
         self.classifier = torch.nn.Linear(in_features, output_classes, device=device)
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = Adam(self.classifier.parameters(), classifier_lr)
+        self.optimizer: Optimizer | None = Adam(self.classifier.parameters(), classifier_lr)
         self.relu: Callable[..., torch.Tensor] = torch.nn.ReLU()
+
+        self._create_hooks_dict()
 
     def get_layer_count(self) -> int:
         return len(self.layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         activations = []
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
             x = layer(x)
+
+            self._call_hooks("layer_activation", x, i)
 
             if x is not None:
                 activations.append(x.clone().detach())
@@ -54,6 +58,9 @@ class FFC(IFF, Module):
             x_neg = layer(x_neg)
 
     def train_classifier(self, x_pos: torch.Tensor, y_pos: torch.Tensor) -> None:
+        if self.optimizer == None:
+            raise ValueError("Optimizer is not set!")
+
         activations = []
         for layer in self.layers:
             x_pos = layer(x_pos)
@@ -77,3 +84,8 @@ class FFC(IFF, Module):
         raise NotImplementedError(
             "Use run_train_combined in conjunction with the FFDataProcessor's combine_to_input method."
         )
+
+    def strip_down(self) -> None:
+        for layer in self.layers:
+            layer.strip_down()
+        self.optimizer = None

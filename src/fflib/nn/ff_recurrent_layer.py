@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from torch.nn import Module, ReLU
-from torch.optim import Adam
+from torch.optim import Adam, Optimizer
 from fflib.interfaces.iff_recurrent_layer import IFFRecurrentLayer
 from typing import Callable, List, Tuple, cast, Any
 
@@ -18,7 +18,7 @@ class FFRecurrentLayer(IFFRecurrentLayer):
         activation_fn: Module = ReLU(),
         maximize: bool = True,
         beta: float = 0.7,
-        optimizer: Callable[..., Any] = Adam,
+        optimizer: type[Optimizer] = Adam,
         device: Any | None = None,
     ):
         super(FFRecurrentLayer, self).__init__()
@@ -29,6 +29,7 @@ class FFRecurrentLayer(IFFRecurrentLayer):
         self.fw_features = fw_features
         self.rc_features = rc_features
         self.bw_features = bw_features
+        self.lr = lr
 
         # fw means Forward Weight
         # bw means Backward Weight
@@ -38,11 +39,14 @@ class FFRecurrentLayer(IFFRecurrentLayer):
         # Bias for each layer
         self.fb = nn.Parameter(torch.Tensor(rc_features).to(device))
 
-        # Setup the Optimizer
-        self.opt: torch.optim.Optimizer = optimizer(self.parameters(), lr)
+        self._init_utils(optimizer)
 
         # Initialize parameters
         self.reset_parameters()
+
+    def _init_utils(self, optimizer: type[Optimizer]) -> None:
+        # Setup the Optimizer
+        self.opt: Optimizer | None = cast(type[Adam], optimizer)(self.parameters(), self.lr)
 
     def get_dimensions(self) -> int:
         return self.rc_features
@@ -53,6 +57,9 @@ class FFRecurrentLayer(IFFRecurrentLayer):
         Args:
             lr (float): New learning rate.
         """
+        if self.opt == None:
+            raise ValueError("Optimizer is not set!")
+
         self.opt.param_groups[0]["lr"] = lr
 
     def reset_parameters(self) -> None:
@@ -113,10 +120,17 @@ class FFRecurrentLayer(IFFRecurrentLayer):
         index: int,
     ) -> None:
 
-        g_pos = self.goodness(h_pos[index - 1], h_pos[index], h_pos[index + 1], inverse=True)[0]
-        g_neg = self.goodness(h_neg[index - 1], h_neg[index], h_neg[index + 1], inverse=False)[0]
+        g_pos = self.goodness(
+            h_pos[index - 1], h_pos[index], h_pos[index + 1], inverse=False ^ self.maximize
+        )[0]
+        g_neg = self.goodness(
+            h_neg[index - 1], h_neg[index], h_neg[index + 1], inverse=True ^ self.maximize
+        )[0]
 
         loss = torch.cat([g_pos, g_neg]).mean()
+
+        if self.opt == None:
+            raise ValueError("Optimizer is not set!")
 
         # Zero the gradients
         self.opt.zero_grad()
@@ -126,6 +140,9 @@ class FFRecurrentLayer(IFFRecurrentLayer):
 
         # Perform a step of optimization
         self.opt.step()
+
+    def strip_down(self) -> None:
+        self.opt = None
 
 
 class FFRecurrentLayerDummy(IFFRecurrentLayer):
@@ -154,4 +171,7 @@ class FFRecurrentLayerDummy(IFFRecurrentLayer):
         h_neg: List[torch.Tensor],
         index: int,
     ) -> None:
+        pass
+
+    def strip_down(self) -> None:
         pass

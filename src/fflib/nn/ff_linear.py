@@ -2,7 +2,7 @@ import torch
 from torch.nn import Linear, Module, ReLU
 from torch.optim import Adam, Optimizer
 
-from typing import Callable, Tuple, Any
+from typing import Callable, Tuple, Any, cast
 
 
 class FFLinear(Linear):
@@ -14,7 +14,7 @@ class FFLinear(Linear):
         lr: float,
         activation_fn: Module = ReLU(),
         maximize: bool = True,
-        optimizer: Callable[..., Any] = Adam,
+        optimizer: type[Optimizer] = Adam,
         bias: bool = True,
         device: Any | None = None,
         dtype: Any | None = None,
@@ -30,7 +30,7 @@ class FFLinear(Linear):
             loss_threshold (float): Loss threshold (dividing positive and negative data)
             lr (float): Learning rate for this layer
             activation_fn (Callable, optional): Activation function for this layer. Defaults to ReLU.
-            maximize (bool, optional): Whether we are maximizing or minimizing the goodness. Defaults to True. (TODO)
+            maximize (bool, optional): Whether we are maximizing or minimizing the goodness. Defaults to True.
             optimizer (Callable, optional): Each layer has its own optimizer. Defaults to Adam.
             bias (bool, optional): Enable bias. Defaults to True.
             device (device, optional): Device. Defaults to None.
@@ -43,7 +43,11 @@ class FFLinear(Linear):
         self.loss_threshold = loss_threshold
         self.maximize = maximize
         self.activation_fn = activation_fn
-        self.opt: Optimizer = optimizer(self.parameters(), lr)
+
+        self._init_utils(optimizer)
+
+    def _init_utils(self, optimizer: type[Optimizer]) -> None:
+        self.opt: Optimizer | None = cast(type[Adam], optimizer)(self.parameters(), self.lr)
 
     def set_lr(self, lr: float) -> None:
         """Use this function to update the learning rate while training.
@@ -51,6 +55,9 @@ class FFLinear(Linear):
         Args:
             lr (float): New learning rate.
         """
+        if self.opt == None:
+            raise ValueError("Optimizer is not set!")
+
         self.opt.param_groups[0]["lr"] = lr
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -103,9 +110,13 @@ class FFLinear(Linear):
             x_neg (torch.Tensor): Negative input data
         """
 
+        if self.opt == None:
+            raise ValueError("Optimizer is not set!")
+
         # Compute the goodness for all of the positive and negative samples
-        g_pos = self.goodness(x_pos, inverse=True)[0]
-        g_neg = self.goodness(x_neg, inverse=False)[0]
+        # In case we maximize, positive goodness should be inverted, since we use it directly as loss
+        g_pos = self.goodness(x_pos, inverse=False ^ self.maximize)[0]
+        g_neg = self.goodness(x_neg, inverse=True ^ self.maximize)[0]
 
         loss = torch.cat([g_pos, g_neg]).mean()
 
@@ -117,3 +128,6 @@ class FFLinear(Linear):
 
         # Perform a step of optimization
         self.opt.step()
+
+    def strip_down(self) -> None:
+        self.opt = None

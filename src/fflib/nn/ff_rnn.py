@@ -1,6 +1,7 @@
 import torch
 
 from torch.nn import Module
+from torch.optim import Optimizer
 from fflib.nn.ff_recurrent_layer import FFRecurrentLayer, FFRecurrentLayerDummy
 from fflib.interfaces.iff import IFF
 from fflib.interfaces.iff_recurrent_layer import IFFRecurrentLayer
@@ -25,9 +26,7 @@ class FFRNN(IFF, Module):
         self.layers = layers
         self.device = device
 
-        # TODO: LOGS!
-        # self.log: bool = False
-        # self.validation_logs: List[float] = []
+        self._create_hooks_dict()
 
     @classmethod
     def from_dimensions(
@@ -39,7 +38,7 @@ class FFRNN(IFF, Module):
         maximize: bool,  # Check if all layers have the same maximize
         activation_fn: Module,
         loss_threshold: float,
-        optimizer: Callable[..., Any],
+        optimizer: type[Optimizer],
         lr: float,
         beta: float = 0.7,
         device: Any | None = None,
@@ -170,6 +169,10 @@ class FFRNN(IFF, Module):
             new_activations = [h.clone() for h in activations]
             for i in range(1, len(self.layers) - 1):
                 g, y = self._goodness_layer(activations, i)
+
+                self._call_hooks("layer_activation", x, i, frame)
+                self._call_hooks("layer_goodness", g, i, frame)
+
                 new_activations[i] = y.detach()
 
                 if frame > self.K_testlow:
@@ -223,3 +226,7 @@ class FFRNN(IFF, Module):
     ) -> None:
 
         raise NotImplementedError("Use run_train function with separate X and Y data inputs.")
+
+    def strip_down(self) -> None:
+        for layer in self.layers:
+            layer.strip_down()

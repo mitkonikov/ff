@@ -7,7 +7,9 @@ from typing import List, Callable
 
 class TryAllClasses(IFFProbe):
     def __init__(
-        self, callback: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], output_classes: int
+        self,
+        callback: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+        output_classes: int,
     ):
         self.callback = callback
         self.output_classes = output_classes

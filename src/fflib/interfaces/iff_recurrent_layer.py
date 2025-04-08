@@ -48,3 +48,7 @@ class IFFRecurrentLayer(ABC, Module):
         index: int,
     ) -> None:
         pass
+
+    @abstractmethod
+    def strip_down(self) -> None:
+        pass

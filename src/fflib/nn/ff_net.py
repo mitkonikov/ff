@@ -3,7 +3,7 @@ import torch
 from torch.nn import Module
 from fflib.interfaces.iff import IFF
 from fflib.nn.ff_linear import FFLinear
-from typing import List, Any
+from typing import List, Any, Dict, Callable
 
 
 class FFNet(IFF, Module):
@@ -16,15 +16,23 @@ class FFNet(IFF, Module):
         self.device = device
         self.layers: List[FFLinear] = layers
 
+        for i in range(len(layers)):
+            self.add_module(f"layer_{i}", layers[i])
+
+        self._create_hooks_dict()
+
     def get_layer_count(self) -> int:
         return len(self.layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         result: List[torch.Tensor] = []  # (layer, batch_size, goodness)
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
             # Each layer's inference returns the goodness of the layer
             # and the output of the layer to be passed to the next
             g, x = layer.goodness(x)
+
+            self._call_hooks("layer_activation", x, i)
+            self._call_hooks("layer_goodness", g, i)
 
             if g is not None:
                 result.append(g)
@@ -55,3 +63,7 @@ class FFNet(IFF, Module):
         raise NotImplementedError(
             "Use run_train_combined in conjunction with the FFDataProcessor's combine_to_input method."
         )
+
+    def strip_down(self) -> None:
+        for layer in self.layers:
+            layer.strip_down()
