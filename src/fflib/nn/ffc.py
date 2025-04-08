@@ -89,3 +89,4 @@ class FFC(IFF, Module):
         for layer in self.layers:
             layer.strip_down()
         self.optimizer = None
+        self.hooks = {}

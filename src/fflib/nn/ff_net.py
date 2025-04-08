@@ -67,3 +67,4 @@ class FFNet(IFF, Module):
     def strip_down(self) -> None:
         for layer in self.layers:
             layer.strip_down()
+        self.hooks = {}
