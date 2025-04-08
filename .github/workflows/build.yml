@@ -123,6 +123,7 @@ jobs:
           poetry run python ./examples/ff_net_mnist.py -e 1 -u 0.01
           poetry run python ./examples/ff_c_mnist.py -e 1 -u 0.01
           poetry run python ./examples/ff_rnn_mnist.py -e 1 -u 0.01
+          poetry run python ./examples/bp_mnist.py -e 1 -u 0.01
 
   publish:
     needs: check-and-build
