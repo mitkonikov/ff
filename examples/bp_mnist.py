@@ -88,7 +88,7 @@ torch.manual_seed(42)
 
 # %% Setup Dataset
 logger.info("Setting up MNIST dataset...")
-mnist = FFMNIST(batch_size=256, validation_split=0.1)
+mnist = FFMNIST(batch_size=256, validation_split=0.1, use=args.use)
 
 # %% Setup Dense Backpropagation Network
 net = BPDenseNet(0.001)

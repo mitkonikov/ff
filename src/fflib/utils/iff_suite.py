@@ -11,7 +11,7 @@ from fflib.utils.ff_logger import logger
 from fflib.utils.data.dataprocessor import FFDataProcessor
 
 from abc import abstractmethod
-from typing import Callable, List, Dict, Tuple, Any
+from typing import Callable, List, Dict, Tuple, cast, Any
 
 
 class IFFSuite:
@@ -168,7 +168,8 @@ class IFFSuite:
             "time_to_train": self.time_to_train,
         }
 
-        delattr(self.net, "hooks")
+        if hasattr(self.net, "hooks"):
+            delattr(self.net, "hooks")
 
         # Check key duplication
         for key in data.keys():
@@ -201,4 +202,5 @@ class IFFSuite:
             setattr(self, key, value)
 
         self.net = data["net"].to(self.device)
+        cast(IFF, self.net)._create_hooks_dict()
         return self.net
