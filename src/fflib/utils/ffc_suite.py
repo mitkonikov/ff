@@ -13,7 +13,7 @@ from typing import Any, cast
 class FFCSuite(IFFSuite):
     def __init__(
         self,
-        ffc: FFC,
+        ffc: FFC | str,
         probe: IFFProbe,
         dataloader: FFDataProcessor,
         device: Any | None = None,

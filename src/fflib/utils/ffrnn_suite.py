@@ -11,7 +11,7 @@ from typing import Any
 class FFRNNSuite(IFFSuite):
     def __init__(
         self,
-        ffc: FFRNN,
+        ffc: FFRNN | str,
         probe: IFFProbe,
         dataloader: FFDataProcessor,
         device: Any | None = None,

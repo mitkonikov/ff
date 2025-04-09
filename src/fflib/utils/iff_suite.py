@@ -168,6 +168,8 @@ class IFFSuite:
             "time_to_train": self.time_to_train,
         }
 
+        delattr(self.net, "hooks")
+
         # Check key duplication
         for key in data.keys():
             if key in extend_dict:

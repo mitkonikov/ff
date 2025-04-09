@@ -5,7 +5,7 @@ from torch.optim import Optimizer
 from fflib.nn.ff_recurrent_layer import FFRecurrentLayer, FFRecurrentLayerDummy
 from fflib.interfaces.iff import IFF
 from fflib.interfaces.iff_recurrent_layer import IFFRecurrentLayer
-from typing import List, Callable, Tuple, cast, Any
+from typing import List, Tuple, cast, Any
 from typing_extensions import Self
 
 
@@ -170,7 +170,7 @@ class FFRNN(IFF, Module):
             for i in range(1, len(self.layers) - 1):
                 g, y = self._goodness_layer(activations, i)
 
-                self._call_hooks("layer_activation", x, i, frame)
+                self._call_hooks("layer_activation", y, i, frame)
                 self._call_hooks("layer_goodness", g, i, frame)
 
                 new_activations[i] = y.detach()
@@ -230,4 +230,4 @@ class FFRNN(IFF, Module):
     def strip_down(self) -> None:
         for layer in self.layers:
             layer.strip_down()
-        self.hooks = {}
+        delattr(self, "hooks")
