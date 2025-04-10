@@ -4,8 +4,10 @@ from torch.nn import Module
 from torch.optim import Adam, Optimizer
 from fflib.interfaces.iff import IFF
 from fflib.nn.ff_linear import FFLinear
+from fflib.enums import SparsityType
+from fflib.utils.maths import ComputeSparsity
 
-from typing import List, Callable, Any
+from typing import List, Dict, Callable, Any
 
 
 class FFC(IFF, Module):
@@ -90,3 +92,12 @@ class FFC(IFF, Module):
             layer.strip_down()
         self.optimizer = None
         delattr(self, "hooks")
+
+    def sparsity(self, type: SparsityType) -> Dict[str, float]:
+        result = {
+            f"layer_{i}": float(layer.sparsity(type).item()) for i, layer in enumerate(self.layers)
+        }
+        result["classifier"] = float(
+            ComputeSparsity(torch.flatten(self.classifier.weight), type).item()
+        )
+        return result

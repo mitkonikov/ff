@@ -1,7 +1,7 @@
-import pytest
 import torch
 
 from fflib.nn.ff_linear import FFLinear
+from fflib.enums import SparsityType
 
 
 def test_setup_linear() -> None:
@@ -57,3 +57,16 @@ def test_train_linear_basic() -> None:
     # Expect the minimum goodness of the positive data to be bigger than the max goodness of neg.
     assert g_pos.min().item() > g_neg.max().item()
     assert g_pos.mean().item() > g_neg.mean().item()
+
+
+def test_sparsity_linear() -> None:
+    torch.manual_seed(42)
+    linear = FFLinear(in_features=10, out_features=2, loss_threshold=1, lr=0.02)
+    hoyer = linear.sparsity(SparsityType.HOYER).item()
+    entropy = linear.sparsity(SparsityType.ENTROPY_BASED).item()
+
+    print(f"Hoyer: {hoyer}")
+    print(f"Entropy-based: {entropy}")
+
+    assert hoyer >= 0 and hoyer <= 1
+    assert entropy >= 0 and entropy <= 1

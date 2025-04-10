@@ -1,8 +1,8 @@
-import pytest
 import torch
 
 from fflib.nn.ff_net import FFNet
 from fflib.nn.ff_linear import FFLinear
+from fflib.enums import SparsityType
 
 
 def test_ff_net_basic() -> None:
@@ -47,3 +47,5 @@ def test_ff_net_basic() -> None:
     # Expect the minimum goodness of the positive data to be bigger than the max goodness of neg.
     assert g_pos.min().item() > g_neg.max().item()
     assert g_pos.mean().item() > g_neg.mean().item()
+
+    print(net.sparsity(SparsityType.HOYER))

@@ -55,6 +55,9 @@ There are 3 different types of Forward-Forward-based Neural Networks implemented
  - [**FF+C**](#ffc) - [example usage](./examples/ff_c_mnist.py)
  - [**FFRNN**](#ffrnn) - [example usage](./examples/ff_rnn_mnist.py)
 
+ > [!NOTE]
+ > There's also a [backpropagation example](./examples/bp_mnist.py) implemented as a base case.
+
 ### FFNet
 
 The basic example of a Neural Network based on the Forward-Forward Algorithm.
@@ -91,6 +94,22 @@ These networks are quite large due to the fact that each layer has not only weig
 from the previous layer, but also backward weights from the next layer.
 These networks have to be trained with multiple frames per batch, thus
 requiring even more time for both, training and inference.
+
+## Utilities
+
+We aim to implement many small utilities for training, validating, testing, developing, debugging and analysing FF networks.
+For each type of network, we have build small network-specifc train-test suites that allow you to quickly train and test
+a FF network with some specific [DataProcessor](./src/fflib/utils/data/dataprocessor.py).
+For each new dataset, you just need to define a data processor.
+The suite will take in the network and the data processor and train the network in the way it is supposed to.
+There are currently implemented 4 different testing suites:
+ - [FF Suite](./src/fflib/utils/ff_suite.py)
+ - [FF+C Suite](./src/fflib/utils/ffc_suite.py)
+ - [FFRNN Suite](./src/fflib/utils/ffrnn_suite.py)
+ - [BP Suite](./src/fflib/utils/bp_suite.py)
+
+Furthermore, each network implements some analysis functions, currently only a `sparsity` function is implemented.
+Sparsity can be computed in two ways `HOYER` [3] and `ENTROPY_BASED`.
 
 ## Contributions
 
@@ -151,3 +170,4 @@ Here are a few guidelines to following while contributing on the library:
 
  - [**[1]**](https://arxiv.org/abs/2212.13345) - Hinton, G. (2022). The Forward-Forward Algorithm: Some preliminary investigations.
  - [**[2]**](https://pytorch.org/) - PyTorch.
+ - [**[3]**](https://dl.acm.org/doi/10.5555/1005332.1044709) - Hoyer, P. (2004). Non-negative Matrix Factorization with Sparseness Constraints.

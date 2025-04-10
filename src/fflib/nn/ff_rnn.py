@@ -5,7 +5,8 @@ from torch.optim import Optimizer
 from fflib.nn.ff_recurrent_layer import FFRecurrentLayer, FFRecurrentLayerDummy
 from fflib.interfaces.iff import IFF
 from fflib.interfaces.iff_recurrent_layer import IFFRecurrentLayer
-from typing import List, Tuple, cast, Any
+from fflib.enums import SparsityType
+from typing import List, Tuple, Dict, cast, Any
 from typing_extensions import Self
 
 
@@ -231,3 +232,7 @@ class FFRNN(IFF, Module):
         for layer in self.layers:
             layer.strip_down()
         delattr(self, "hooks")
+
+    def sparsity(self, type: SparsityType) -> Dict[str, Dict[str, float]]:
+        """Returns a dictionary of dictionaries describing the sparsity levels at each layer."""
+        return {f"layer_{i}": layer.sparsity(type) for i, layer in enumerate(self.layers)}

@@ -1,8 +1,9 @@
 import torch
 
 from torch.nn import Module
+from fflib.enums import SparsityType
 from abc import ABC, abstractmethod
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, Dict
 
 
 class IFFRecurrentLayer(ABC, Module):
@@ -51,4 +52,8 @@ class IFFRecurrentLayer(ABC, Module):
 
     @abstractmethod
     def strip_down(self) -> None:
+        pass
+
+    @abstractmethod
+    def sparsity(self, type: SparsityType) -> Dict[str, float]:
         pass

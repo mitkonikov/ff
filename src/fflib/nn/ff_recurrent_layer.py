@@ -4,7 +4,9 @@ import torch.nn as nn
 from torch.nn import Module, ReLU
 from torch.optim import Adam, Optimizer
 from fflib.interfaces.iff_recurrent_layer import IFFRecurrentLayer
-from typing import Callable, List, Tuple, cast, Any
+from fflib.enums import SparsityType
+from fflib.utils.maths import ComputeSparsity
+from typing import Callable, List, Tuple, Dict, cast, Any
 
 
 class FFRecurrentLayer(IFFRecurrentLayer):
@@ -144,6 +146,17 @@ class FFRecurrentLayer(IFFRecurrentLayer):
     def strip_down(self) -> None:
         self.opt = None
 
+    def sparsity(self, type: SparsityType) -> Dict[str, float]:
+        return {
+            "fw": float(ComputeSparsity(torch.flatten(self.fw), type).item()),
+            "bw": float(ComputeSparsity(torch.flatten(self.bw), type).item()),
+            "fw+bw": float(
+                ComputeSparsity(
+                    torch.cat((torch.flatten(self.fw), torch.flatten(self.fb))), type
+                ).item()
+            ),
+        }
+
 
 class FFRecurrentLayerDummy(IFFRecurrentLayer):
     def __init__(self, dimensions: int):
@@ -175,3 +188,6 @@ class FFRecurrentLayerDummy(IFFRecurrentLayer):
 
     def strip_down(self) -> None:
         pass
+
+    def sparsity(self, type: SparsityType) -> Dict[str, float]:
+        return {}

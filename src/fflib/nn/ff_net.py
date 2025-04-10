@@ -3,6 +3,7 @@ import torch
 from torch.nn import Module
 from fflib.interfaces.iff import IFF
 from fflib.nn.ff_linear import FFLinear
+from fflib.enums import SparsityType
 from typing import List, Any, Dict, Callable
 
 
@@ -68,3 +69,8 @@ class FFNet(IFF, Module):
         for layer in self.layers:
             layer.strip_down()
         delattr(self, "hooks")
+
+    def sparsity(self, type: SparsityType) -> Dict[str, float]:
+        return {
+            f"layer_{i}": float(layer.sparsity(type).item()) for i, layer in enumerate(self.layers)
+        }

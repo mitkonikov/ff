@@ -2,6 +2,9 @@ import torch
 from torch.nn import Linear, Module, ReLU
 from torch.optim import Adam, Optimizer
 
+from fflib.enums import SparsityType
+from fflib.utils.maths import ComputeSparsity
+
 from typing import Callable, Tuple, Any, cast
 
 
@@ -131,3 +134,7 @@ class FFLinear(Linear):
 
     def strip_down(self) -> None:
         self.opt = None
+
+    def sparsity(self, type: SparsityType) -> torch.Tensor:
+        """Computes the sparsity of the weight's matrix."""
+        return ComputeSparsity(torch.flatten(self.weight), type)
