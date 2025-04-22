@@ -51,19 +51,19 @@ class IFFSuite:
 
         Example where this is useful is a custom LR scheduler:
         ```
-        def callback(suite: FF_TestSuite, e: int):
-            for i in range(0, len(suite.net.layers) - 1):
-                if suite.net.layers[i] is not None:
-                    cur_lr = suite.net.layers[i].get_lr()
-                    next_lr = min([cur_lr, cul_lr * 2 * (1 + epochs - e) / epochs])
+        def callback(net: IFF, e: int):
+            for i in range(0, len(net.layers) - 1):
+                if net.layers[i] is not None:
+                    cur_lr = net.layers[i].get_lr()
+                    next_lr = min([cur_lr, cur_lr * 2 * (1 + epochs - e) / epochs])
                     print(f"Layer {i} Next LR: {next_lr}")
-                    suite.net.layers[i].set_lr(next_lr)
+                    net.layers[i].set_lr(next_lr)
         ```
 
         Args:
-            callback (Callable[[FF_TestSuite, int], Any]):
+            callback (Callable[[IFF, int], Any]):
                 Callback function accepting two parameters -
-                The FFTestSuite object and the current epoch.
+                The Neural Network and the current epoch.
         """
 
         self.pre_epoch_callback = callback

@@ -16,6 +16,14 @@ class IFFRecurrentLayer(ABC, Module):
         pass
 
     @abstractmethod
+    def get_lr(self) -> float:
+        pass
+
+    @abstractmethod
+    def set_lr(self, lr: float) -> None:
+        pass
+
+    @abstractmethod
     def goodness(
         self,
         x_prev: torch.Tensor,

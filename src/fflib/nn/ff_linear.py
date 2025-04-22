@@ -52,6 +52,9 @@ class FFLinear(Linear):
     def _init_utils(self, optimizer: type[Optimizer]) -> None:
         self.opt: Optimizer | None = cast(type[Adam], optimizer)(self.parameters(), self.lr)
 
+    def get_lr(self) -> float:
+        return float(self.opt.param_groups[0]["lr"]) if self.opt is not None else 1
+
     def set_lr(self, lr: float) -> None:
         """Use this function to update the learning rate while training.
 
