@@ -19,7 +19,6 @@ class FFCSuite(IFFSuite):
         device: Any | None = None,
     ):
         super().__init__(ffc, probe, dataloader, device)
-        self.time_to_train: float = 0
         self.train_classifier: bool = False
 
     def train_switch(self, train_classifier: bool) -> None:

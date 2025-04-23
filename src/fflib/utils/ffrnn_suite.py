@@ -17,7 +17,6 @@ class FFRNNSuite(IFFSuite):
         device: Any | None = None,
     ):
         super().__init__(ffc, probe, dataloader, device)
-        self.time_to_train: float = 0
 
     def _train(self, x: torch.Tensor, y: torch.Tensor) -> None:
         y_enc = self.dataloader.encode_output(y)

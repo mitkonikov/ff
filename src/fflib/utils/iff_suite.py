@@ -32,16 +32,16 @@ class IFFSuite:
             self.net = self.load(ff_net)
         else:
             self.net = ff_net
+            self.current_epoch: int = 0
+            self.epoch_data: List[Dict[str, Any]] = []
+            self.time_to_train: float = 0
+            self.test_accuracy: float = 0
 
         if device is not None:
             self.net.to(device)
 
-        # Default member variables
+        # Members that get reset even when loading pretrained networks
         self.pre_epoch_callback: Callable[[IFF, int], Any] | None = None
-        self.current_epoch: int = 0
-        self.epoch_data: List[Dict[str, Any]] = []
-        self.time_to_train: float = 0
-        self.test_accuracy: float = 0
 
         logger.info("Created FFSuite.")
 
