@@ -1,6 +1,6 @@
 [project]
 name = "fflib"
-version = "0.2.0"
+version = "0.3.0"
 description = "PyTorch-based library for the Forward-Forward algorithm"
 authors = [
     {name = "Mitko Nikov",email = "mitkonikov01@gmail.com"}
