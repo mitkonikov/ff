@@ -6,6 +6,7 @@ from torch.optim import Adam, Optimizer
 from fflib.interfaces.iff_recurrent_layer import IFFRecurrentLayer
 from fflib.enums import SparsityType
 from fflib.utils.maths import ComputeSparsity
+from math import sqrt
 from typing import Callable, List, Tuple, Dict, cast, Any
 
 
@@ -68,12 +69,15 @@ class FFRecurrentLayer(IFFRecurrentLayer):
         self.opt.param_groups[0]["lr"] = lr
 
     def reset_parameters(self) -> None:
+        k = 1.00 / self.rc_features
+        L = -sqrt(k)
+        R = sqrt(k)
         for weight in [self.fw, self.bw]:
-            nn.init.orthogonal_(weight)
+            nn.init.uniform_(weight, L, R)
 
         if self.fb is not None:
             for bias in [self.fb]:
-                nn.init.uniform_(bias)
+                nn.init.uniform_(bias, L, R)
 
     def forward(
         self,
