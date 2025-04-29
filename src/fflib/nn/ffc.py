@@ -17,6 +17,7 @@ class FFC(IFF, Module):
         classifier_lr: float,
         output_classes: int = 10,
         device: Any | None = None,
+        maximize: bool = True,
     ):
         super().__init__()
 
@@ -31,6 +32,10 @@ class FFC(IFF, Module):
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer: Optimizer | None = Adam(self.classifier.parameters(), classifier_lr)
         self.relu: Callable[..., torch.Tensor] = torch.nn.ReLU()
+        self.maximize = maximize
+
+        for i in range(len(self.layers)):
+            self.layers[i].maximize = maximize
 
         self._create_hooks_dict()
 

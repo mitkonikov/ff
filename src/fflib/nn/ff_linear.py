@@ -82,7 +82,6 @@ class FFLinear(Linear):
         """
 
         # Normalize the input tensor along each row
-        # Each row in x_direction is a unit vector in the direction of the corresponding row in x
         x_direction = x / (x.norm(2, 1, keepdim=True) + 1e-4)
 
         # Compute the linear transformation followed by the given activation

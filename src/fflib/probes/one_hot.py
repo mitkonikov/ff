@@ -10,9 +10,11 @@ class TryAllClasses(IFFProbe):
         self,
         callback: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
         output_classes: int,
+        maximize: bool = True,
     ):
         self.callback = callback
         self.output_classes = output_classes
+        self.maximize = maximize
 
     def class_goodness(self, x: torch.Tensor) -> torch.Tensor:
         batch_size = x.shape[0]
@@ -34,7 +36,7 @@ class TryAllClasses(IFFProbe):
         return result
 
     def predict(self, x: torch.Tensor) -> torch.Tensor:
-        """Goes over all possible One Hot Encodings and takes the one with the maximum goodness.
+        """Goes over all possible One Hot Encodings and takes the one with the maximum/minimum goodness.
         This is achieved by asking the callback function for each possible encoding.
 
         Args:
@@ -45,5 +47,5 @@ class TryAllClasses(IFFProbe):
         """
 
         goodness = self.class_goodness(x)
-        best_label = torch.argmax(goodness, 1)  # (batch_size, )
-        return best_label
+        best_label = torch.argmax(goodness, 1) if self.maximize else torch.argmin(goodness, 1)
+        return best_label  # (batch_size, )
