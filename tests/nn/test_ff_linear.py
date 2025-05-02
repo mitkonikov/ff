@@ -62,11 +62,9 @@ def test_train_linear_basic() -> None:
 def test_sparsity_linear() -> None:
     torch.manual_seed(42)
     linear = FFLinear(in_features=10, out_features=2, loss_threshold=1, lr=0.02)
-    hoyer = linear.sparsity(SparsityType.HOYER).item()
-    entropy = linear.sparsity(SparsityType.ENTROPY_BASED).item()
 
-    print(f"Hoyer: {hoyer}")
-    print(f"Entropy-based: {entropy}")
-
-    assert hoyer >= 0 and hoyer <= 1
-    assert entropy >= 0 and entropy <= 1
+    for type in SparsityType:
+        t = str(type).split(".")[1]
+        sparsity = linear.sparsity(type).item()
+        print(f"{t}: {sparsity}")
+        assert sparsity >= 0 and sparsity <= 1

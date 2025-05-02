@@ -5,6 +5,7 @@ from fflib.enums import SparsityType
 
 
 def test_setup_recurrent() -> None:
+    torch.manual_seed(42)
     recurrent = FFRecurrentLayer(
         fw_features=10,
         rc_features=5,
@@ -13,5 +14,8 @@ def test_setup_recurrent() -> None:
         lr=0.02,
     )
 
-    print("HOYER:", recurrent.sparsity(SparsityType.HOYER))
-    print("ENTROPY_BASED:", recurrent.sparsity(SparsityType.ENTROPY_BASED))
+    for type in SparsityType:
+        t = str(type).split(".")[1]
+        sparsity = recurrent.sparsity(type)["fw+bw"]
+        print(f"{t}: {sparsity}")
+        assert sparsity >= 0 and sparsity <= 1
