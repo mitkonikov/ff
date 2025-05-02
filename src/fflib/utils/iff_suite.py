@@ -42,6 +42,7 @@ class IFFSuite:
 
         # Members that get reset even when loading pretrained networks
         self.pre_epoch_callback: Callable[[IFF, int], Any] | None = None
+        self.pre_batch_callback: Callable[[IFF, int, int], Any] | None = None
 
         logger.info("Created FFSuite.")
 
@@ -67,6 +68,9 @@ class IFFSuite:
         """
 
         self.pre_epoch_callback = callback
+
+    def set_pre_batch_callback(self, callback: Callable[[IFF, int, int], Any]) -> None:
+        self.pre_batch_callback = callback
 
     def run_test_epoch(self, loader: DataLoader[Any]) -> float:
         self.net.eval()
@@ -96,11 +100,14 @@ class IFFSuite:
         if self.pre_epoch_callback is not None:
             self.pre_epoch_callback(self.net, self.current_epoch)
 
-        for b in tqdm(loaders["train"]):
+        for i, b in tqdm(enumerate(loaders["train"]), total=len(loaders["train"])):
             batch: Tuple[torch.Tensor, torch.Tensor] = b
             x, y = batch
             if self.device is not None:
                 x, y = x.to(self.device), y.to(self.device)
+
+            if self.pre_batch_callback is not None:
+                self.pre_batch_callback(self.net, self.current_epoch, i)
 
             self._train(x, y)
 
