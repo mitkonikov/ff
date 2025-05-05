@@ -48,6 +48,12 @@ class FFXOR(FFDataProcessor):
         self.test_loader = DataLoader(XORDataset(size), **self.test_kwargs)
         self.val_loader = DataLoader(XORDataset(size), **self.test_kwargs)
 
+    def get_input_shape(self) -> torch.Size:
+        return torch.Size((2,))
+
+    def get_output_shape(self) -> torch.Size:
+        return torch.Size((2,))
+
     def get_train_loader(self) -> DataLoader[Any]:
         return self.train_loader
 

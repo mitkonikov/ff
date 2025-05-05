@@ -1,8 +1,9 @@
 from fflib.utils.data.mnist import FFMNIST
 from fflib.utils.data.fashion_mnist import FFFashionMNIST
 from fflib.utils.data.xor import FFXOR
+from fflib.utils.data.cifar10 import FFCIFAR10
 
-from typing import Dict, Any
+from typing import Any
 
 
 def CreateDatasetFromName(
@@ -11,7 +12,7 @@ def CreateDatasetFromName(
     validation_split: float,
     use: float = 1.0,
     **kwargs: Any,
-) -> FFMNIST | FFFashionMNIST | FFXOR | None:
+) -> FFMNIST | FFFashionMNIST | FFXOR | FFCIFAR10 | None:
     """Create a Dataset object via a name of the dataset.
     This is used to dynamically set the dataset from CLI arguments.
 
@@ -36,6 +37,13 @@ def CreateDatasetFromName(
         )
     elif name == "fashionmnist" or name == "fashion" or name == "fashion_mnist":
         return FFFashionMNIST(
+            batch_size,
+            validation_split,
+            use=use,
+            **kwargs,
+        )
+    elif name == "cifar10":
+        return FFCIFAR10(
             batch_size,
             validation_split,
             use=use,

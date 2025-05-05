@@ -2,7 +2,7 @@ import torch
 
 from torch.nn.functional import one_hot
 from torch.utils.data import DataLoader, random_split
-from torchvision.datasets import FashionMNIST  # type: ignore
+from torchvision.datasets import CIFAR10  # type: ignore
 from torchvision.transforms import Compose, ToTensor, Lambda  # type: ignore
 
 from fflib.utils.data import FFDataProcessor
@@ -18,7 +18,7 @@ class NegativeGenerator(Enum):
     HIGHEST_INCORRECT = 3
 
 
-class FFFashionMNIST(FFDataProcessor):
+class FFCIFAR10(FFDataProcessor):
     def __init__(
         self,
         batch_size: int,
@@ -53,10 +53,10 @@ class FFFashionMNIST(FFDataProcessor):
         self.negative_generator = negative_generator
         self.use = use
 
-        self.train_dataset = FashionMNIST(
+        self.train_dataset = CIFAR10(
             self.path, train=True, download=self.download, transform=self.image_transform
         )
-        self.test_dataset = FashionMNIST(
+        self.test_dataset = CIFAR10(
             self.path, train=False, download=self.download, transform=self.image_transform
         )
         self.test_loader = DataLoader(self.test_dataset, **self.test_kwargs)
@@ -89,7 +89,7 @@ class FFFashionMNIST(FFDataProcessor):
         self.train_loader = DataLoader(train_dataset, **self.train_kwargs)
 
     def get_input_shape(self) -> torch.Size:
-        return torch.Size((28 * 28,))
+        return torch.Size((32 * 32 * 3,))
 
     def get_output_shape(self) -> torch.Size:
         return torch.Size((10,))

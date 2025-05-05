@@ -88,6 +88,12 @@ class FFMNIST(FFDataProcessor):
         )
         self.train_loader = DataLoader(train_dataset, **self.train_kwargs)
 
+    def get_input_shape(self) -> torch.Size:
+        return torch.Size((28 * 28,))
+
+    def get_output_shape(self) -> torch.Size:
+        return torch.Size((10,))
+
     def get_train_loader(self) -> DataLoader[Any]:
         return self.train_loader
 

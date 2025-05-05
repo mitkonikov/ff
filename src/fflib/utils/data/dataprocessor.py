@@ -16,6 +16,17 @@ class FFDataProcessor(ABC):
         assert len(splits) in [2, 3]
 
     @abstractmethod
+    def get_input_shape(self) -> torch.Size:
+        pass
+
+    @abstractmethod
+    def get_output_shape(self) -> torch.Size:
+        pass
+
+    def numel(self) -> int:
+        return self.get_input_shape().numel() + self.get_output_shape().numel()
+
+    @abstractmethod
     def get_train_loader(self) -> DataLoader[Any]:
         pass
 
