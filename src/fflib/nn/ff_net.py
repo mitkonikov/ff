@@ -118,3 +118,6 @@ class FFNet(IFF, Module):
         return {
             f"layer_{i}": float(layer.sparsity(type).item()) for i, layer in enumerate(self.layers)
         }
+
+    def stats(self) -> Dict[str, Any]:
+        return {f"layer_{i}": layer.stats() for i, layer in enumerate(self.layers)}

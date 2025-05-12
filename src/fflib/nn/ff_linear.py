@@ -3,9 +3,9 @@ from torch.nn import Linear, Module, ReLU
 from torch.optim import Adam, Optimizer
 
 from fflib.enums import SparsityType
-from fflib.utils.maths import ComputeSparsity
+from fflib.utils.maths import ComputeSparsity, ComputeStats
 
-from typing import Callable, Tuple, Any, cast
+from typing import Callable, Tuple, Dict, Any, cast
 
 
 class FFLinear(Linear):
@@ -140,3 +140,6 @@ class FFLinear(Linear):
     def sparsity(self, type: SparsityType) -> torch.Tensor:
         """Computes the sparsity of the weight's matrix."""
         return ComputeSparsity(torch.flatten(self.weight), type)
+
+    def stats(self) -> Dict[str, Any]:
+        return {"weight": ComputeStats(self.weight), "bias": ComputeStats(self.bias)}

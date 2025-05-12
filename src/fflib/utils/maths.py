@@ -37,3 +37,12 @@ def ComputeAllSparsityTypes(x: torch.Tensor) -> Dict[str, torch.Tensor]:
     for type in SparsityType:
         result[str(type).split(".")[1]] = ComputeSparsity(x, type)
     return result
+
+
+def ComputeStats(x: torch.Tensor) -> Dict[str, float]:
+    return {
+        "min": x.min().item(),
+        "max": x.max().item(),
+        "mean": x.mean().item(),
+        "std": x.std().item(),
+    }

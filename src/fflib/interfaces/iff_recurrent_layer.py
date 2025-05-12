@@ -3,7 +3,7 @@ import torch
 from torch.nn import Module
 from fflib.enums import SparsityType
 from abc import ABC, abstractmethod
-from typing import Callable, Tuple, List, Dict
+from typing import Callable, Tuple, List, Dict, Any
 
 
 class IFFRecurrentLayer(ABC, Module):
@@ -64,4 +64,8 @@ class IFFRecurrentLayer(ABC, Module):
 
     @abstractmethod
     def sparsity(self, type: SparsityType) -> Dict[str, float]:
+        pass
+
+    @abstractmethod
+    def stats(self) -> Dict[str, Any]:
         pass

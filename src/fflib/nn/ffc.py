@@ -5,7 +5,7 @@ from torch.optim import Adam, Optimizer
 from fflib.interfaces.iff import IFF
 from fflib.nn.ff_linear import FFLinear
 from fflib.enums import SparsityType
-from fflib.utils.maths import ComputeSparsity
+from fflib.utils.maths import ComputeSparsity, ComputeStats
 
 from typing import List, Dict, Callable, Any
 
@@ -105,4 +105,12 @@ class FFC(IFF, Module):
         result["classifier"] = float(
             ComputeSparsity(torch.flatten(self.classifier.weight), type).item()
         )
+        return result
+
+    def stats(self) -> Dict[str, Any]:
+        result = {f"layer_{i}": layer.stats() for i, layer in enumerate(self.layers)}
+        result["classifier"] = {
+            "weight": ComputeStats(self.classifier.weight),
+            "bias": ComputeStats(self.classifier.bias),
+        }
         return result

@@ -236,3 +236,7 @@ class FFRNN(IFF, Module):
     def sparsity(self, type: SparsityType) -> Dict[str, Dict[str, float]]:
         """Returns a dictionary of dictionaries describing the sparsity levels at each layer."""
         return {f"layer_{i}": layer.sparsity(type) for i, layer in enumerate(self.layers)}
+
+    def stats(self) -> Dict[str, Dict[str, float]]:
+        """Returns a dictionary of dictionaries containing basic statistics about the layers' parameters."""
+        return {f"layer_{i}": layer.stats() for i, layer in enumerate(self.layers[1:-1])}
